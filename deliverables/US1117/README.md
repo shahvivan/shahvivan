@@ -1,37 +1,44 @@
-# US 1117 — SAM OnSite Guard Onboarding MVP Specification
+# SAM OnSite — Guard Onboarding (MVP specification)
 
-Developer-ready Word specification for **User Story 1117 — SAM OnSite: User onboarding scenario**
-(mandatory first-login voice training for security guards).
+A concise, professional **4-page** Word specification for the SAM OnSite guard onboarding
+feature (a mandatory first-login voice training that teaches guards to ask a question, report an
+incident, and correct a report — using safe, made-up data).
 
 ## Files
 
-- `US1117_SAM_OnSite_Guard_Onboarding_MVP_Spec.docx` — the deliverable.
-- `build_us1117_spec.js` — reproducible builder (Node + `docx`). Run: `node build_us1117_spec.js`.
+- `SAM_OnSite_Guard_Onboarding_Spec.docx` — the deliverable.
+- `build_spec.js` — reproducible builder (Node + `docx`). Run: `node build_spec.js`.
 
-## What the document contains
+## What it contains
 
-Purpose & confirmed decisions · scope · roles/ownership · end-to-end flow · voice & screen
-script · functional requirements (FR-01–FR-20) · progress & completion model · practice-Activity
-lifecycle & data isolation · error/recovery · acceptance criteria (AC-01–AC-13) · UAT matrix
-(UAT-01–UAT-18) · requirement traceability matrix · rollout/rollback · Definition of Done ·
-release-safety gates · engineering-validation list · evidence basis.
+In-one-minute summary · how it works step by step · a single "what must be true and how we
+confirm it" requirements table · the two things that must not go wrong (data isolation &
+completion integrity) · handling the unhappy paths · what to confirm with engineering · rollout,
+guardrails, and definition of done.
 
-Every requirement carries an evidence tag — **[Verified] / [Proposed] / [To validate] /
-[Recommended]** — so nothing reads as fact unless it is. `[Verified]` marks a requirement's
-*source or decision*, not that the platform already implements it; implementation feasibility is
-tracked in §16.
+Every requirement is self-contained (no cross-references to chase) and carries a plain-language
+status — **Confirmed** (agreed behaviour), **Proposed** (recommended default), or **Check with
+engineering** (needs a platform confirmation) — so nothing reads as fact unless it is.
 
 ## How it was verified
 
-1. Structural audit of the actual `.docx` (US Letter geometry, real Word numbering — no fake
-   bullets, table geometry, repeated headers, cross-reference integrity, FR→AC→UAT coverage).
-2. Unbiased multi-perspective **council**: independent Product/UX, Engineering/Data, QA/Traceability,
-   Safety/Privacy, and Document-Quality critics. Their evidence-backed findings were incorporated.
-3. A **separate final verifier** applied strict pass/fail gates A–I. It issued **PASS** with no
-   blocking defects.
+1. Structural audit of the actual `.docx` (real Word numbering, table geometry, margins, and a
+   check that no ticket/user-story references appear in the content).
+2. An unbiased multi-perspective **council** — clarity/no-gaps, completeness/fidelity,
+   safety/data-integrity, and document-design critics — whose evidence-backed findings were
+   incorporated.
+3. A **separate independent verifier** applying strict pass/fail gates (≤4 pages · no ticket
+   references · effortless clarity · fidelity · honesty · safety · professional quality). It
+   issued **PASS** with no blocking defects.
+
+## Design
+
+Georgia serif headings, a restrained slate + teal palette (not default Office blue), eyebrow
+section numerals, real Word list definitions, clean tables with repeating headers, and a running
+header/footer with page numbers — a polished, human-authored look.
 
 ## Guardrails
 
-Nothing here authorises a production change. All work proceeds in DEV/UAT and reaches production
-only after Vincent Smeyers' approval. No client template pack or protected system template is
-modified. No backend endpoint or database field is invented — unknowns are collected in §16.
+Describes intended behaviour for internal build and testing only. No production change is made
+until Vincent Smeyers has signed off. Universal for all guards (no customer-specific setup); no
+existing templates are changed.
