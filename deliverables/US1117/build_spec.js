@@ -195,7 +195,7 @@ kids.push(gap(70));
 
 /* ---- In one minute ---- */
 kids.push(callout([
-  [t("In one minute.  ", { bold: true, color: TEALD }), t("The first time a guard signs in, SAM — the in-app voice assistant — runs a short, required voice exercise that teaches the three things they will do every day: ask a question, report an incident, and correct a report. It uses a made-up incident so nothing real is affected, cannot be skipped, takes a few minutes, saves progress, and is marked complete only after the guard actually performs each step. All practice data is hidden from every live report and dashboard, and a guard can reopen the exercise later as a refresher.")],
+  [t("In one minute.  ", { bold: true, color: TEALD }), t("The first time a guard signs in, SAM — the in-app voice assistant — runs a short, required voice exercise that teaches the three things they will do every day: ask a question, report an incident, and correct a report. It uses a made-up incident so nothing real is affected, cannot be skipped, takes a few minutes, saves progress, and is marked complete only after the guard actually performs each step. All practice data must be kept out of every live report and dashboard — and because the filter that enforces this is not built yet, the exercise runs in the internal test environments until it is. A guard can reopen the exercise later as a refresher.")],
 ]));
 kids.push(gap(40));
 
@@ -216,7 +216,7 @@ const flow = "flow";
   "The exercise is marked complete — but only after SAM has seen the guard do each step for real (a question answered, one practice report created, the report showing each correction) — and the guard arrives at the normal home screen.",
 ].forEach((s) => kids.push(numitem(flow, s)));
 kids.push(new Paragraph({ spacing: { before: 20, after: 40 }, children: [
-  t("Throughout, the practice report is marked as training the instant it is created, so it never appears in any live report, dashboard, analytics view, export, automated alert or integration, or the guard’s own activity list and search. An always-visible ", { size: 18, color: GREY }),
+  t("Throughout, the practice report carries a training mark from the instant it is created; that mark is what must keep it out of every live report, dashboard, analytics view, export, automated alert or integration, and the guard’s own activity list and search. An always-visible ", { size: 18, color: GREY }),
   t("Report an urgent incident", { size: 18, bold: true, color: GREY }),
   t(" action — a safety measure we added — lets a guard handle a real emergency at any moment, even without a microphone, and returns them to where they left off.", { size: 18, color: GREY }),
 ] }));
@@ -244,8 +244,8 @@ const REQ = [
   ["Report one practice incident", "P", "The guard reports the made-up incident and SAM creates exactly one practice report. Repeats or retries must never create extra reports."],
   ["Fix a report by voice", "C", "The guard tells SAM to change “Dell” to “MacBook”; the same report updates and no duplicate appears. (The exact way the app updates the report is a Check-with-engineering item.)"],
   ["Fix a report by hand", "C", "The guard long-presses their own message, edits it, and saves; the finished report contains both “MacBook” and “reception.” (Whether the app already supports this edit is a Check-with-engineering item.)"],
-  ["Practice data stays invisible", "C", "The practice report is hidden from every live surface — reports, dashboards, analytics, exports, automated alerts and integrations, and the guard’s own activity list and search — for its whole life."],
-  ["Nothing leaks, even briefly", "P", "Because an alert or integration message cannot be recalled once sent, nothing about the practice report is sent anywhere until the “training” mark is in place. If that cannot be guaranteed, the report is not created."],
+  ["Marked as training at creation", "C", "Every practice report is flagged as training (archive / soft-delete) the moment it is created — the platform already has this flag for exactly this purpose — so a report never exists un-marked."],
+  ["Kept out of every live surface", "C", "The practice report must appear in no live surface — reports, dashboards, analytics, exports, automated alerts and integrations, and the guard’s own activity list and search. The filter that excludes training-marked data does not exist yet, so archived data is currently still visible in production; this exclusion filter must be built and verified before go-live. Until then the exercise runs only in the internal test environments."],
   ["Finishing is earned & remembered", "P", "Completion is recorded only after SAM sees the guard actually do each step — never a quiz or an “I’m done” button. It is stored on the server as version 1, issued once per guard, survives closing the app or switching devices, and cannot be duplicated."],
   ["Emergencies always get through", "P", "A safety measure we added, not an original requirement: a “Report an urgent incident” action is visible on every onboarding screen, works without a microphone, opens normal reporting, and returns the guard to where they left off. It does not count as finishing or skipping."],
   ["Visual aids come later", "C", "Extra visual help (tooltips, highlights) for dark or noisy sites is not built now; the need is judged during testing."],
@@ -256,9 +256,11 @@ kids.push(table([2340, 7308], ["Requirement", "What it means and how we confirm 
 kids.push(eyebrow("03", "The two things that must not go wrong"));
 kids.push(subhead("PRACTICE DATA NEVER REACHES LIVE OPERATIONS"));
 kids.push(p([
-  t("The made-up incident must never trigger a real response. It is marked as training in the same moment it is created — before anything is sent onward — and that mark is applied at the shared data layer as a "),
+  t("The made-up incident must never trigger a real response. Every practice report is marked as training the moment it is created — the platform already has this archive / soft-delete flag. "),
+  t("The dependency to be clear about:", { bold: true }),
+  t(" the filtering that actually keeps marked data out of live surfaces does not exist yet — today, archived items are still visible in production — so it is a required enhancement, not something that works today. This exercise therefore runs only in the internal test environments until that exclusion filter is built and verified, and must not go live in production before then. When built, the filter should work "),
   t("hide-by-default", { bold: true }),
-  t(" rule: every current and future live surface hides it automatically, rather than each one having to remember to exclude it. If the system cannot create the report with that mark in a single step, it does not create the report at all. Permanent deletion of practice data is a separate clean-up done later; it is not needed for this release."),
+  t(" at the shared data layer, so every current and future live surface excludes training data automatically rather than each one having to remember to. Permanent deletion of practice data is a separate database clean-up done later; only the guard’s completion status is kept."),
 ]));
 kids.push(subhead("COMPLETION IS SERVER-SIDE, EARNED, AND SAFE UNDER PRESSURE"));
 kids.push(p([
@@ -284,22 +286,22 @@ const conf = "conf";
   "Can this exercise be launched on its own, without the usual voice or tap triggers that start other scenarios?",
   "Can SAM run in a practice mode whose conversation and report never enter live reporting?",
   "What is the exact way the app updates an existing report — both when SAM does it by voice and when the guard edits their message by hand?",
-  "What is the exact “training / archive” marker, and where are reports created and updated, so the mark can be applied at creation?",
+  "The archive / training flag exists — confirm exactly which live feeds, reports, alerts, integrations, and views the new exclusion filter must cover, and where reports are created so the flag is set at creation.",
   "Is there already a place to store “this guard has completed onboarding,” or does one need to be added?",
 ].forEach((s) => kids.push(bullet(conf, s)));
 
 /* ---- 06 Rollout, guardrails & done ---- */
 kids.push(eyebrow("06", "Rollout, guardrails, and done"));
 kids.push(p([
-  t("Roll out behind a switch so it can be turned on gradually and turned off instantly — without erasing anyone’s completed status. Test first with a dedicated test customer account (tenant) and test guards in the internal environments, and confirm the practice report is hidden from "),
-  t("every", { bold: true }),
-  t(" live surface before go-live. This is universal for all guards — no customer-specific setup — and it does not change any existing templates. Nothing reaches production without Vincent Smeyers’ sign-off."),
+  t("Production go-live is "),
+  t("blocked", { bold: true }),
+  t(" until the exclusion filter that hides training data from every live surface is built and verified; until then this runs only in the internal test environments (DEV/UAT) with a dedicated test customer account (tenant) and test guards. Roll out behind a switch so it can be turned on gradually and turned off instantly, without erasing anyone’s completed status. This is universal for all guards — no customer-specific setup — and it does not change any existing templates. Nothing reaches production without Vincent Smeyers’ sign-off."),
 ], { after: 60 }));
 kids.push(subhead("DONE MEANS"));
 const done = "done";
 [
   "A guard — new or existing — is shown the exercise once, completes it by doing the real steps, and lands on the home screen; reopening later keeps their completed status.",
-  "The practice report is proven absent from every live surface at every stage, and a forced hide-failure withholds completion.",
+  "The exclusion filter is built and the practice report is proven absent from every live surface, and a forced hide-failure withholds completion.",
   "The confirm-with-engineering items are answered, and Vincent Smeyers has signed off.",
 ].forEach((s) => kids.push(bullet(done, s)));
 
