@@ -22,16 +22,16 @@ const {
   Header, Footer, PageNumber, LevelFormat, TabStopType, Tab, VerticalAlign,
 } = require("docx");
 
-/* ---------- palette ---------- */
-const INK   = "1F2A33";   // slate — body & headings
-const TEAL  = "2F6E63";   // accent — rules, eyebrows, subheads
-const TEALD = "234f47";   // darker teal
-const GREY  = "5C6B73";   // muted
-const HFILL = "1F2A33";   // table header fill (slate)
-const ZEBRA = "F3F6F5";   // faint row band
-const BOX   = "F5F8F7";   // callout background
-const RULE  = "CDD8D5";   // hairline
-const GOLD  = "9C7A32";   // subtle warm accent (used sparingly)
+/* ---------- palette (calm editorial) ---------- */
+const INK   = "3A3A38";   // warm charcoal — body & headings
+const TEAL  = "4A6B82";   // single restrained accent (dusty blue) — numerals, thin rules
+const TEALD = "2E3A44";   // deep blue-grey — subheads
+const GREY  = "77746E";   // warm muted grey
+const HFILL = "F4F2EE";   // soft warm header fill (light, dark text)
+const ZEBRA = "F3F6F5";   // (unused — kept for compatibility)
+const BOX   = "F7F6F2";   // soft callout background
+const RULE  = "E6E4DF";   // hairline
+const GOLD  = "9C7A32";   // (unused)
 
 const SERIF = "Georgia";
 const SANS  = "Calibri";
@@ -43,9 +43,9 @@ const CONTENT_W = PAGE_W - 2 * MARGIN_LR; // 9648 DXA
 
 /* plain-language status labels (self-explanatory — no legend hunting) */
 const STATUS = {
-  C: { label: "Confirmed",         color: "2F6E4E" }, // agreed decision / instruction
-  P: { label: "Proposed",          color: "8A6100" }, // our recommended default
-  X: { label: "Check w/ eng.",     color: "9A3B2E" }, // needs an engineering confirmation
+  C: { label: "Confirmed",         color: "43724E" }, // agreed decision / instruction
+  P: { label: "Proposed",          color: "8A6A1F" }, // our recommended default
+  X: { label: "Check w/ eng.",     color: "A05A38" }, // needs an engineering confirmation
 };
 
 /* ---------- helpers ---------- */
@@ -54,110 +54,108 @@ function t(text, o = {}) {
     bold: !!o.bold, italics: !!o.it, characterSpacing: o.cs });
 }
 function statusChip(key) {
+  // quiet coloured label (no filled pill) — calmer, still scannable
   const s = STATUS[key];
-  return new TextRun({ text: ` ${s.label} `, font: SANS, size: 15, bold: true, color: "FFFFFF",
-    shading: { type: ShadingType.CLEAR, color: "auto", fill: s.color } });
+  return new TextRun({ text: s.label.toUpperCase(), font: SANS, size: 14, bold: true, color: s.color, characterSpacing: 6 });
 }
 function p(children, o = {}) {
   return new Paragraph({
-    spacing: { after: o.after == null ? 90 : o.after, line: o.line || 250, lineRule: "auto" },
+    spacing: { after: o.after == null ? 92 : o.after, line: o.line || 252, lineRule: "auto" },
     alignment: o.align, keepNext: o.keepNext,
     children: Array.isArray(children) ? children : [t(children, o)],
   });
 }
 function eyebrow(num, title) {
-  // "01 —  Title"  with teal numeral, slate Georgia title, hairline under
+  // small accent numeral, calm serif title, faint hairline under
   return new Paragraph({
     heading: HeadingLevel.HEADING_1,
-    spacing: { before: 200, after: 80 }, keepNext: true,
-    border: { bottom: { color: RULE, style: BorderStyle.SINGLE, size: 6, space: 4 } },
+    spacing: { before: 220, after: 78 }, keepNext: true,
+    border: { bottom: { color: RULE, style: BorderStyle.SINGLE, size: 4, space: 6 } },
     children: [
-      new TextRun({ text: num + "  ", font: SERIF, size: 24, bold: true, color: TEAL }),
-      new TextRun({ text: title, font: SERIF, size: 24, bold: true, color: INK }),
+      new TextRun({ text: num + "   ", font: SANS, size: 19, bold: true, color: TEAL, characterSpacing: 10 }),
+      new TextRun({ text: title, font: SERIF, size: 25, color: INK }),
     ],
   });
 }
 function subhead(text) {
   return new Paragraph({
     heading: HeadingLevel.HEADING_2,
-    spacing: { before: 120, after: 50 }, keepNext: true,
-    children: [new TextRun({ text, font: SANS, size: 19, bold: true, color: TEALD, characterSpacing: 4 })],
+    spacing: { before: 160, after: 60 }, keepNext: true,
+    children: [new TextRun({ text, font: SERIF, size: 20, bold: true, color: TEALD })],
   });
 }
 
-/* ---------- table primitives ---------- */
-const BRD = { style: BorderStyle.SINGLE, size: 3, color: "D5DEDB" };
-function cellBorders() { return { top: BRD, bottom: BRD, left: BRD, right: BRD }; }
+/* ---------- table primitives (open editorial style) ---------- */
+const HAIR = { style: BorderStyle.SINGLE, size: 2, color: RULE };
+const NONE = { style: BorderStyle.NONE };
+const HEADRULE = { style: BorderStyle.SINGLE, size: 8, color: TEAL };
 function cell(runsOrText, o = {}) {
   const paras = Array.isArray(runsOrText) && runsOrText[0] instanceof Paragraph
     ? runsOrText
     : [new Paragraph({
-        spacing: { after: 0, line: 244, lineRule: "auto" }, alignment: o.align,
+        spacing: { after: 0, line: 248, lineRule: "auto" }, alignment: o.align,
         children: Array.isArray(runsOrText) ? runsOrText : [t(runsOrText, { size: o.size || 18, bold: o.bold, color: o.color })],
       })];
   return new TableCell({
-    width: { size: o.w, type: WidthType.DXA }, verticalAlign: o.va || VerticalAlign.CENTER,
-    shading: o.fill ? { type: ShadingType.CLEAR, color: "auto", fill: o.fill } : undefined,
-    margins: { top: 54, bottom: 54, left: 96, right: 96 }, borders: cellBorders(),
+    width: { size: o.w, type: WidthType.DXA }, verticalAlign: o.va || VerticalAlign.TOP,
+    margins: { top: 56, bottom: 56, left: 40, right: 150 },
+    borders: { top: NONE, bottom: NONE, left: NONE, right: NONE },
     children: paras,
   });
 }
 function hcell(text, w) {
   return new TableCell({
-    width: { size: w, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER,
-    shading: { type: ShadingType.CLEAR, color: "auto", fill: HFILL },
-    margins: { top: 60, bottom: 60, left: 96, right: 96 }, borders: cellBorders(),
-    children: [new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text, font: SANS, size: 18, bold: true, color: "FFFFFF", characterSpacing: 3 })] })],
+    width: { size: w, type: WidthType.DXA }, verticalAlign: VerticalAlign.BOTTOM,
+    margins: { top: 30, bottom: 52, left: 40, right: 150 },
+    borders: { top: NONE, bottom: HEADRULE, left: NONE, right: NONE },
+    children: [new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: text.toUpperCase(), font: SANS, size: 15, bold: true, color: TEAL, characterSpacing: 8 })] })],
   });
 }
 function table(colW, headers, rows) {
   const head = new TableRow({ tableHeader: true, cantSplit: true, children: headers.map((h, i) => hcell(h, colW[i])) });
-  const body = rows.map((r, ri) => new TableRow({
+  const body = rows.map((r) => new TableRow({
     cantSplit: true,
     children: r.map((c, ci) => {
-      const fill = ri % 2 ? ZEBRA : undefined;
       if (c instanceof TableCell) return c;
-      if (Array.isArray(c) && (c[0] instanceof TextRun || c[0] instanceof Paragraph)) return cell(c, { w: colW[ci], fill, va: VerticalAlign.TOP });
-      return cell(String(c == null ? "" : c), { w: colW[ci], fill, va: VerticalAlign.TOP });
+      if (Array.isArray(c) && (c[0] instanceof TextRun || c[0] instanceof Paragraph)) return cell(c, { w: colW[ci] });
+      return cell(String(c == null ? "" : c), { w: colW[ci] });
     }),
   }));
   return new Table({
     columnWidths: colW, width: { size: colW.reduce((a, b) => a + b, 0), type: WidthType.DXA },
-    borders: { top: BRD, bottom: BRD, left: BRD, right: BRD, insideHorizontal: BRD, insideVertical: BRD },
+    borders: { top: NONE, bottom: NONE, left: NONE, right: NONE, insideHorizontal: HAIR, insideVertical: NONE },
     rows: [head, ...body],
   });
 }
 
-/* callout: left accent bar, soft fill, optional bold lead lines */
+/* callout: soft fill, thin left accent — light touch */
 function callout(lines, accent = TEAL) {
   const inner = lines.map((ln, i) => new Paragraph({
-    spacing: { after: i === lines.length - 1 ? 0 : 60, line: 248, lineRule: "auto" },
+    spacing: { after: i === lines.length - 1 ? 0 : 60, line: 258, lineRule: "auto" },
     children: Array.isArray(ln) ? ln : [t(ln)],
   }));
   return new Table({
     columnWidths: [CONTENT_W], width: { size: CONTENT_W, type: WidthType.DXA },
     borders: {
-      top: { style: BorderStyle.SINGLE, size: 3, color: RULE },
-      bottom: { style: BorderStyle.SINGLE, size: 3, color: RULE },
-      left: { style: BorderStyle.SINGLE, size: 22, color: accent },
-      right: { style: BorderStyle.SINGLE, size: 3, color: RULE },
-      insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE },
+      top: NONE, bottom: NONE, right: NONE,
+      left: { style: BorderStyle.SINGLE, size: 12, color: accent },
+      insideHorizontal: NONE, insideVertical: NONE,
     },
     rows: [new TableRow({ cantSplit: true, children: [new TableCell({
       width: { size: CONTENT_W, type: WidthType.DXA },
       shading: { type: ShadingType.CLEAR, color: "auto", fill: BOX },
-      margins: { top: 80, bottom: 80, left: 150, right: 150 }, children: inner,
+      margins: { top: 96, bottom: 96, left: 170, right: 170 }, children: inner,
     })] })],
   });
 }
 function bullet(ref, children) {
   return new Paragraph({ numbering: { reference: ref, level: 0 },
-    spacing: { after: 54, line: 248, lineRule: "auto" },
+    spacing: { after: 48, line: 250, lineRule: "auto" },
     children: Array.isArray(children) ? children : [t(children)] });
 }
 function numitem(ref, children) {
   return new Paragraph({ numbering: { reference: ref, level: 0 },
-    spacing: { after: 46, line: 246, lineRule: "auto" },
+    spacing: { after: 42, line: 248, lineRule: "auto" },
     children: Array.isArray(children) ? children : [t(children)] });
 }
 const gap = (h) => new Paragraph({ spacing: { after: h }, children: [] });
@@ -170,8 +168,8 @@ kids.push(new Paragraph({ spacing: { after: 16 },
   children: [t("PRONECT   ·   SAM ONSITE", { size: 16, bold: true, color: TEAL, cs: 40 })] }));
 kids.push(new Paragraph({ spacing: { after: 20 },
   children: [new TextRun({ text: "Guard Onboarding", font: SERIF, size: 46, bold: true, color: INK })] }));
-kids.push(new Paragraph({ spacing: { after: 100 },
-  border: { bottom: { color: TEAL, style: BorderStyle.SINGLE, size: 14, space: 6 } },
+kids.push(new Paragraph({ spacing: { after: 140 },
+  border: { bottom: { color: TEAL, style: BorderStyle.SINGLE, size: 4, space: 10 } },
   children: [new TextRun({ text: "Mandatory first-login voice training — MVP specification", font: SERIF, size: 21, italics: true, color: GREY })] }));
 
 /* meta strip (no ticket data) */
@@ -181,7 +179,7 @@ kids.push(new Table({
   rows: [new TableRow({ children: [new TableCell({
     width: { size: CONTENT_W, type: WidthType.DXA },
     shading: { type: ShadingType.CLEAR, color: "auto", fill: BOX },
-    margins: { top: 70, bottom: 70, left: 150, right: 150 }, borders: cellBorders(),
+    margins: { top: 100, bottom: 100, left: 180, right: 180 }, borders: { top: NONE, bottom: NONE, left: NONE, right: NONE },
     children: [new Paragraph({ spacing: { after: 0 }, children: [
       t("Product  ", { size: 16, bold: true, color: TEAL, cs: 4 }), t("SAM OnSite       ", { size: 18 }),
       t("Applies to  ", { size: 16, bold: true, color: TEAL, cs: 4 }), t("Every guard, once       ", { size: 18 }),

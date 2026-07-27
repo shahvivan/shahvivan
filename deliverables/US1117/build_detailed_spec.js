@@ -18,17 +18,17 @@ const {
   Header, Footer, PageNumber, LevelFormat, TabStopType, Tab, VerticalAlign,
 } = require("docx");
 
-/* ---------- palette / type (matches the 4-page brief) ---------- */
-const INK = "1F2A33", TEAL = "2F6E63", TEALD = "234f47", GREY = "5C6B73";
-const HFILL = "1F2A33", ZEBRA = "F3F6F5", BOX = "F5F8F7", RULE = "CDD8D5";
+/* ---------- palette (calm editorial — matches the brief) ---------- */
+const INK = "3A3A38", TEAL = "4A6B82", TEALD = "2E3A44", GREY = "77746E";
+const HFILL = "F4F2EE", ZEBRA = "F3F6F5", BOX = "F7F6F2", RULE = "E6E4DF";
 const SERIF = "Georgia", SANS = "Calibri";
 const PAGE_W = 12240, PAGE_H = 15840, MARGIN_TB = 1224, MARGIN_LR = 1296;
 const CONTENT_W = PAGE_W - 2 * MARGIN_LR; // 9648
 
 const STATUS = {
-  C: { label: "Confirmed",     color: "2F6E4E" },
-  P: { label: "Proposed",      color: "8A6100" },
-  X: { label: "Check w/ eng.", color: "9A3B2E" },
+  C: { label: "Confirmed",     color: "43724E" },
+  P: { label: "Proposed",      color: "8A6A1F" },
+  X: { label: "Check w/ eng.", color: "A05A38" },
 };
 
 /* ---------- helpers ---------- */
@@ -37,67 +37,64 @@ function t(text, o = {}) {
     bold: !!o.bold, italics: !!o.it, characterSpacing: o.cs });
 }
 function chip(key) {
+  // quiet coloured label (no filled pill)
   const s = STATUS[key];
-  return new TextRun({ text: ` ${s.label} `, font: SANS, size: 14, bold: true, color: "FFFFFF",
-    shading: { type: ShadingType.CLEAR, color: "auto", fill: s.color } });
+  return new TextRun({ text: s.label.toUpperCase(), font: SANS, size: 14, bold: true, color: s.color, characterSpacing: 6 });
 }
 function p(children, o = {}) {
-  return new Paragraph({ spacing: { after: o.after == null ? 90 : o.after, line: o.line || 250, lineRule: "auto" },
+  return new Paragraph({ spacing: { after: o.after == null ? 92 : o.after, line: o.line || 252, lineRule: "auto" },
     alignment: o.align, keepNext: o.keepNext, children: Array.isArray(children) ? children : [t(children, o)] });
 }
 function eyebrow(num, title) {
-  return new Paragraph({ heading: HeadingLevel.HEADING_1, spacing: { before: 200, after: 80 }, keepNext: true,
-    border: { bottom: { color: RULE, style: BorderStyle.SINGLE, size: 6, space: 4 } },
-    children: [ new TextRun({ text: num + "  ", font: SERIF, size: 24, bold: true, color: TEAL }),
-      new TextRun({ text: title, font: SERIF, size: 24, bold: true, color: INK }) ] });
+  return new Paragraph({ heading: HeadingLevel.HEADING_1, spacing: { before: 220, after: 78 }, keepNext: true,
+    border: { bottom: { color: RULE, style: BorderStyle.SINGLE, size: 4, space: 6 } },
+    children: [ new TextRun({ text: num + "   ", font: SANS, size: 19, bold: true, color: TEAL, characterSpacing: 10 }),
+      new TextRun({ text: title, font: SERIF, size: 25, color: INK }) ] });
 }
 function subhead(text) {
-  return new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 120, after: 50 }, keepNext: true,
-    children: [new TextRun({ text, font: SANS, size: 19, bold: true, color: TEALD, characterSpacing: 4 })] });
+  return new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 150, after: 56 }, keepNext: true,
+    children: [new TextRun({ text, font: SERIF, size: 20, bold: true, color: TEALD })] });
 }
-const BRD = { style: BorderStyle.SINGLE, size: 3, color: "D5DEDB" };
-const cB = () => ({ top: BRD, bottom: BRD, left: BRD, right: BRD });
+const HAIR = { style: BorderStyle.SINGLE, size: 2, color: RULE };
+const NONE = { style: BorderStyle.NONE };
+const HEADRULE = { style: BorderStyle.SINGLE, size: 8, color: TEAL };
 function cell(content, o = {}) {
   const paras = Array.isArray(content) && content[0] instanceof Paragraph ? content
-    : [new Paragraph({ spacing: { after: 0, line: 240, lineRule: "auto" }, alignment: o.align,
+    : [new Paragraph({ spacing: { after: 0, line: 248, lineRule: "auto" }, alignment: o.align,
         children: Array.isArray(content) ? content : [t(content, { size: o.size || 18, bold: o.bold, color: o.color })] })];
   return new TableCell({ width: { size: o.w, type: WidthType.DXA }, verticalAlign: o.va || VerticalAlign.TOP,
-    shading: o.fill ? { type: ShadingType.CLEAR, color: "auto", fill: o.fill } : undefined,
-    margins: { top: 50, bottom: 50, left: 90, right: 90 }, borders: cB(), children: paras });
+    margins: { top: 56, bottom: 56, left: 40, right: 150 }, borders: { top: NONE, bottom: NONE, left: NONE, right: NONE }, children: paras });
 }
 function hcell(text, w) {
-  return new TableCell({ width: { size: w, type: WidthType.DXA }, verticalAlign: VerticalAlign.CENTER,
-    shading: { type: ShadingType.CLEAR, color: "auto", fill: HFILL }, margins: { top: 56, bottom: 56, left: 90, right: 90 }, borders: cB(),
-    children: [new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text, font: SANS, size: 18, bold: true, color: "FFFFFF", characterSpacing: 3 })] })] });
+  return new TableCell({ width: { size: w, type: WidthType.DXA }, verticalAlign: VerticalAlign.BOTTOM,
+    margins: { top: 30, bottom: 52, left: 40, right: 150 }, borders: { top: NONE, bottom: HEADRULE, left: NONE, right: NONE },
+    children: [new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: text.toUpperCase(), font: SANS, size: 15, bold: true, color: TEAL, characterSpacing: 8 })] })] });
 }
 function table(colW, headers, rows) {
   const head = new TableRow({ tableHeader: true, cantSplit: true, children: headers.map((h, i) => hcell(h, colW[i])) });
-  const body = rows.map((r, ri) => new TableRow({ cantSplit: true, children: r.map((c, ci) => {
-    const fill = ri % 2 ? ZEBRA : undefined;
+  const body = rows.map((r) => new TableRow({ cantSplit: true, children: r.map((c, ci) => {
     if (c instanceof TableCell) return c;
-    if (Array.isArray(c) && (c[0] instanceof TextRun || c[0] instanceof Paragraph)) return cell(c, { w: colW[ci], fill });
-    return cell(String(c == null ? "" : c), { w: colW[ci], fill, bold: ci === 0 });
+    if (Array.isArray(c) && (c[0] instanceof TextRun || c[0] instanceof Paragraph)) return cell(c, { w: colW[ci] });
+    return cell(String(c == null ? "" : c), { w: colW[ci] });
   }) }));
   return new Table({ columnWidths: colW, width: { size: colW.reduce((a, b) => a + b, 0), type: WidthType.DXA },
-    borders: { top: BRD, bottom: BRD, left: BRD, right: BRD, insideHorizontal: BRD, insideVertical: BRD }, rows: [head, ...body] });
+    borders: { top: NONE, bottom: NONE, left: NONE, right: NONE, insideHorizontal: HAIR, insideVertical: NONE }, rows: [head, ...body] });
 }
 function callout(lines, accent = TEAL, title) {
   const inner = [];
-  if (title) inner.push(new Paragraph({ spacing: { after: 40 }, children: [t(title, { bold: true, color: accent })] }));
-  lines.forEach((ln, i) => inner.push(new Paragraph({ spacing: { after: i === lines.length - 1 ? 0 : 60, line: 248, lineRule: "auto" },
+  if (title) inner.push(new Paragraph({ spacing: { after: 46 }, children: [t(title, { bold: true, color: accent })] }));
+  lines.forEach((ln, i) => inner.push(new Paragraph({ spacing: { after: i === lines.length - 1 ? 0 : 60, line: 258, lineRule: "auto" },
     children: Array.isArray(ln) ? ln : [t(ln)] })));
   return new Table({ columnWidths: [CONTENT_W], width: { size: CONTENT_W, type: WidthType.DXA },
-    borders: { top: { style: BorderStyle.SINGLE, size: 3, color: RULE }, bottom: { style: BorderStyle.SINGLE, size: 3, color: RULE },
-      left: { style: BorderStyle.SINGLE, size: 22, color: accent }, right: { style: BorderStyle.SINGLE, size: 3, color: RULE },
-      insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE } },
+    borders: { top: NONE, bottom: NONE, right: NONE, left: { style: BorderStyle.SINGLE, size: 12, color: accent }, insideHorizontal: NONE, insideVertical: NONE },
     rows: [new TableRow({ cantSplit: true, children: [new TableCell({ width: { size: CONTENT_W, type: WidthType.DXA },
-      shading: { type: ShadingType.CLEAR, color: "auto", fill: BOX }, margins: { top: 80, bottom: 80, left: 150, right: 150 }, children: inner })] })] });
+      shading: { type: ShadingType.CLEAR, color: "auto", fill: BOX }, margins: { top: 96, bottom: 96, left: 170, right: 170 }, children: inner })] })] });
 }
-function bullet(ref, children) { return new Paragraph({ numbering: { reference: ref, level: 0 }, spacing: { after: 54, line: 248, lineRule: "auto" }, children: Array.isArray(children) ? children : [t(children)] }); }
-function numitem(ref, children) { return new Paragraph({ numbering: { reference: ref, level: 0 }, spacing: { after: 46, line: 246, lineRule: "auto" }, children: Array.isArray(children) ? children : [t(children)] }); }
+function bullet(ref, children) { return new Paragraph({ numbering: { reference: ref, level: 0 }, spacing: { after: 48, line: 250, lineRule: "auto" }, children: Array.isArray(children) ? children : [t(children)] }); }
+function numitem(ref, children) { return new Paragraph({ numbering: { reference: ref, level: 0 }, spacing: { after: 42, line: 248, lineRule: "auto" }, children: Array.isArray(children) ? children : [t(children)] }); }
 const gap = (h) => new Paragraph({ spacing: { after: h }, children: [] });
-// detail cell = leading chip + text
-const dcell = (key, text, w, fill) => cell([chip(key), t("  " + text, { size: 18 })], { w, fill });
+// detail cell = leading quiet label + text
+const dcell = (key, text, w, fill) => cell([chip(key), t("  " + text, { size: 18 })], { w });
 
 /* ================= DATA ================= */
 const FR = [
@@ -191,11 +188,11 @@ const kids = [];
 /* cover */
 kids.push(new Paragraph({ spacing: { after: 16 }, children: [t("PRONECT   ·   SAM ONSITE", { size: 16, bold: true, color: TEAL, cs: 40 })] }));
 kids.push(new Paragraph({ spacing: { after: 20 }, children: [new TextRun({ text: "Guard Onboarding", font: SERIF, size: 46, bold: true, color: INK })] }));
-kids.push(new Paragraph({ spacing: { after: 100 }, border: { bottom: { color: TEAL, style: BorderStyle.SINGLE, size: 14, space: 6 } },
+kids.push(new Paragraph({ spacing: { after: 140 }, border: { bottom: { color: TEAL, style: BorderStyle.SINGLE, size: 4, space: 10 } },
   children: [new TextRun({ text: "Detailed specification — engineering & QA companion", font: SERIF, size: 21, italics: true, color: GREY })] }));
 kids.push(new Table({ columnWidths: [CONTENT_W], width: { size: CONTENT_W, type: WidthType.DXA },
   borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE }, insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE } },
-  rows: [new TableRow({ children: [new TableCell({ width: { size: CONTENT_W, type: WidthType.DXA }, shading: { type: ShadingType.CLEAR, color: "auto", fill: BOX }, margins: { top: 70, bottom: 70, left: 150, right: 150 }, borders: cB(),
+  rows: [new TableRow({ children: [new TableCell({ width: { size: CONTENT_W, type: WidthType.DXA }, shading: { type: ShadingType.CLEAR, color: "auto", fill: BOX }, margins: { top: 100, bottom: 100, left: 180, right: 180 }, borders: { top: NONE, bottom: NONE, left: NONE, right: NONE },
     children: [new Paragraph({ spacing: { after: 0 }, children: [
       t("Product  ", { size: 16, bold: true, color: TEAL, cs: 4 }), t("SAM OnSite       ", { size: 18 }),
       t("Applies to  ", { size: 16, bold: true, color: TEAL, cs: 4 }), t("Every guard, once       ", { size: 18 }),
