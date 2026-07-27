@@ -254,7 +254,7 @@ kids.push(table([2340, 7308], ["Requirement", "What it means and how we confirm 
 
 /* ---- 03 Practice data & completion (the two things that must not go wrong) ---- */
 kids.push(eyebrow("03", "The two things that must not go wrong"));
-kids.push(subhead("PRACTICE DATA NEVER REACHES LIVE OPERATIONS"));
+kids.push(subhead("PRACTICE DATA MUST NEVER REACH LIVE OPERATIONS"));
 kids.push(p([
   t("The made-up incident must never trigger a real response. Every practice report is marked as training the moment it is created — the platform already has this archive / soft-delete flag. "),
   t("The dependency to be clear about:", { bold: true }),
