@@ -116,10 +116,10 @@ const FR = [
   ["FR-16", "C", "Hand-off", "On confirmed completion the guard reaches the normal home screen (Talk / Capture / Type)."],
   ["FR-17", "P", "Way out for a real incident", "Low priority, deliberately minimal: a way to leave onboarding, report a real incident through normal reporting, and return to the saved stage without it counting as finishing or skipping. In practice a guard deals with a genuine emergency however they always have, and new guards are accompanied early on — so this is a safeguard, not a focus of the build. Keep the implementation small."],
   ["FR-18", "P", "Idempotency / concurrency", "One onboarding record and one active practice-report reference per guard. Retries do not duplicate; the newest valid server-side progress wins with no regression; the completion operation is idempotent."],
-  ["FR-19", "P", "Privacy / telemetry", "Telemetry records only stage and error codes and completion metrics. It does not keep microphone-permission state beyond need, does not log raw voice/transcript content beyond existing policy, and never routes fictional incident content into operational analytics."],
+  ["FR-19", "P", "Privacy / telemetry", "Telemetry records only stage and error codes and completion metrics. It does not keep permission or NFC state beyond need, does not log raw voice/transcript content beyond existing policy, and never routes fictional incident content into operational analytics."],
   ["FR-20", "C", "Deferred visual support", "Extra visual help (tooltips, highlight animations) for dark or noisy sites is deferred; the need is judged during testing, not built for the MVP. (Scope decision — no separate test.)"],
-  ["FR-22", "C", "NFC gate", "After permissions, SAM links the guard to the NFC setting — NFC is what reads the checkpoint tags. The guard switches it on, returns, and says or types “done”. SAM confirms NFC is actually on before continuing, and names it if it is not. Same rule as permissions: the guard’s confirmation is a prompt to check, not proof."],
   ["FR-21", "C", "Tone and engagement", "The experience must feel like receiving a useful new tool, not sitting a test. SAM opens with a warm, personal greeting that names what it does for the guard and why that helps them, frames each step as a benefit, encourages briefly after each success, uses short everyday language, and closes warmly. A dry “do this, then that” sequence does not meet this requirement. See Tone and script for the principles and reference copy."],
+  ["FR-22", "C", "NFC gate", "After permissions, SAM links the guard to the NFC setting — NFC is what reads the checkpoint tags. The guard switches it on, returns, and says or types “done”. SAM confirms NFC is actually on before continuing, and names it if it is not. Same rule as permissions: the guard’s confirmation is a prompt to check, not proof."],
 ];
 const AC = [
   ["AC-01", "FR-01", "Given an active guard who has not completed onboarding, when they sign in, then it launches automatically before the home screen is reachable."],
@@ -137,8 +137,8 @@ const AC = [
   ["AC-13", "FR-17", "Given a guard leaves onboarding to report a real incident, then normal reporting opens and, on return, the saved stage resumes with completion neither granted nor skipped."],
   ["AC-14", "FR-05", "Given any onboarding screen or prompt, then all voice and screen copy is in English."],
   ["AC-15", "FR-19", "Given a run, when telemetry and analytics are inspected, then only stage/error codes and completion metrics are recorded, with no raw voice/transcript content and no fictional incident content in operational analytics."],
-  ["AC-17", "FR-22", "Given the NFC step, when the guard enables NFC and says or types “done”, then SAM confirms NFC is on before continuing; if NFC is off, SAM says so and links the guard back rather than advancing."],
   ["AC-16", "FR-21", "Given the full run-through, then it opens with a warm personal greeting, each step is framed as a benefit with a brief encouragement after it, and the close is warm — signed off by product on a read-through, and at least four of five test guards describing it as welcoming rather than test-like. If fewer do, the copy is revised and re-run."],
+  ["AC-17", "FR-22", "Given the NFC step, when the guard enables NFC and says or types “done”, then SAM confirms NFC is on before continuing; if NFC is off, SAM says so and links the guard back rather than advancing."],
 ];
 const UAT = [
   ["UAT-01", "AC-01", "New guard’s first sign-in triggers onboarding.", "Shown before home; progress record created."],
@@ -162,9 +162,9 @@ const UAT = [
   ["UAT-19", "AC-13", "Leave onboarding to report a real incident, then return.", "Normal reporting opens; returns to saved stage; completion neither granted nor skipped."],
   ["UAT-20", "AC-14", "Review all onboarding copy.", "All copy is English."],
   ["UAT-21", "AC-15", "Inspect telemetry and analytics during a run. (negative)", "Only stage/error + completion metrics; no raw content; no fictional data in analytics."],
+  ["UAT-22", "AC-16", "Full run-through with at least five test guards, reviewing tone.", "Warm personal opening; each step framed as a benefit with brief encouragement; warm close. At least four of five describe it as welcoming, not a test; product signs off the copy."],
   ["UAT-23", "AC-04", "Confirm the permissions step by typing or tapping, before microphone permission is granted.", "Typed/tapped “done” is accepted; no voice needed at this point."],
   ["UAT-24", "AC-17", "NFC step with NFC on, then repeated with NFC off. (negative)", "Advances only when NFC is on; when off SAM names it and links back."],
-  ["UAT-22", "AC-16", "Full run-through with at least five test guards, reviewing tone.", "Warm personal opening; each step framed as a benefit with brief encouragement; warm close. At least four of five describe it as welcoming, not a test; product signs off the copy."],
 ];
 const TRACE = [
   ["Auto-launch + refresher", "FR-01", "AC-01", "UAT-01", "Shown before home; refresher reopens"],
@@ -360,7 +360,7 @@ kids.push(table([850, 1350, 7448], ["ID", "Traces to", "Criterion"], AC.map((r) 
 
 /* 11 UAT */
 kids.push(eyebrow("11", "Test matrix (DEV / UAT)"));
-kids.push(p("Positive and negative tests. Negatives cover skip, mic denial, mic unavailable, transcription failure, voice-correction failure, manual-save failure, isolation failure, concurrency, and network/device resume.", { after: 50 }));
+kids.push(p("Positive and negative tests. Negatives cover skip, a permission left off, a permission that cannot be granted, NFC off, transcription failure, voice-correction failure, manual-save failure, isolation failure, concurrency, and network/device resume.", { after: 50 }));
 kids.push(table([850, 1050, 3900, 3848], ["ID", "Verifies", "Test", "Expected evidence"], UAT.map((r) => [r[0], r[1], r[2], r[3]])));
 
 /* 12 Traceability */
