@@ -95,6 +95,35 @@ If continuing this work, **never let any document, email, or statement imply the
 
 ---
 
+## 4b. SECOND STAKEHOLDER CORRECTION — JEROEN'S FEEDBACK (engagement + urgent-incident)
+
+After the first version of both documents was produced, **Jeroen** (engineering reviewer) sent feedback, quoted here verbatim because it drove a full revision:
+
+> "Another very important aspect: engagement and motivation of the guard. The guard has just received a new tool to make life easier, so we must present it as such. The onboarding experience must be fun, like receiving a gift or new toy. 'Congratulations ... I'm your new assistant ... Let's get to know each other ... I can best assist you if you do x ... etc'. It should therefore certainly not be a dry 'now you do this and then you do that' experience. Let's be very engaging."
+>
+> "A lot of focus in the document is on the 'report urgent incident' flow/scenario, while I don't really think it's so important in practice. When there's a serious incident the guard will just deal with that in a way they've always done so. If it's a new guard and then they're anyway accompanied in the beginning so they don't have to deal with urgent incidents. So while it's not an issue to have this flow, I don't see it as very relevant."
+>
+> "These are my 2 cents. Happy to discuss or look at the next version."
+
+**What was changed in response (both documents):**
+
+*Engagement:*
+- The flow steps were rewritten so SAM introduces itself and speaks warmly, with reference copy quoted inline (e.g. "Hello — I'm SAM, your new assistant. From today I do your paperwork, so you can keep your eyes on the site."), and each step frames a benefit rather than an instruction ("Done. I wrote that up while you talked." / "Fixed. No forms, no rewriting.").
+- The brief's summary now leads with "It should feel like unwrapping a good tool, not sitting a test," and **"Feels like a welcome, not a test" is the first row** of the requirements table.
+- The detailed doc's script section was renamed **"Tone and script"** and now opens with explicit "HOW IT SHOULD SOUND" principles before the reference copy.
+- Engagement was made a real, traceable requirement: **FR-21 → AC-16 → UAT-22** plus a traceability row, with a testable negative clause ("A dry 'do this, then that' sequence does not meet this requirement") and a pass threshold (product read-through + at least four of five test guards calling it welcoming, not a test).
+
+*Urgent-incident de-emphasis:*
+- Reduced to exactly one requirement row per document, renamed **"A way out for a real incident (minor)" / FR-17**, explicitly labelled low-priority with Jeroen's own reasoning restated ("In practice guards handle real emergencies as they always have, and new guards are accompanied early on"), plus the instruction "Keep the implementation small."
+- Removed from the flow narrative, from the microphone/support-screen requirement, and from the error-recovery and traceability rows where it had been over-weighting the path.
+- **Deliberately NOT removed entirely** — Jeroen said "it's not an issue to have this flow," so it retains one FR, one AC, one UAT, and one traceability row. If continuing, do not delete it, and do not let it re-inflate.
+
+**A note on the literal word "Congratulations":** Jeroen's message sketched warmth with an example opening. An early revision transcribed "Congratulations" literally into both the copy and the requirement wording. A reviewer flagged this as a register mismatch (congratulating an adult for being issued mandatory software) and it was reworded — the *requirement* now asks for "a warm, personal greeting that names what it does for the guard and why that helps," leaving the copywriter free to find the line. Treat Jeroen's quoted phrasing as intent, not as locked copy.
+
+**Also fixed in that round:** SAM's spoken line originally promised "two minutes" while the spec's target duration is 3–5 minutes; all time references were harmonised to "a few minutes." And the semantic-equivalence rule (guards need only demonstrate the intended action, not an exact phrase) was moved out of the tone section into FR-07 where QA will find it.
+
+---
+
 ## 5. THE MVP PRODUCT FLOW (as specified, in both deliverables)
 
 1. Guard signs in. If onboarding isn't complete, it opens automatically before the home screen — for new and existing guards alike.
@@ -242,7 +271,9 @@ If asked to adjust the look again, the first place to change values is the palet
 
 ## 12. WHAT HAS NOT YET BEEN DONE (the actual outstanding work)
 
-1. **The email to Vincent Smeyers and Jeroen has been drafted in this chat but is NOT sent.** The user asked for it to be made "more professional" than an earlier casual draft, and the final professional version (reproduced in full below) is the one to use, unless the user asks for further changes. **Do not assume it was sent — confirm with the user before treating this as done.**
+0. **Jeroen has already reviewed a version and sent feedback (see §4b), which has been incorporated.** He closed with "Happy to discuss or look at the next version" — so the natural next step is sending him the revised pair, and the email draft below predates his feedback and should be updated to reference his input before sending.
+
+1. **The email to Vincent Smeyers and Jeroen was drafted earlier in this chat and is NOT sent.** Note it was written *before* Jeroen's feedback arrived, so it needs a line acknowledging his two points were incorporated. The user asked for it to be made "more professional" than an earlier casual draft, and the final professional version (reproduced in full below) is the one to use, unless the user asks for further changes. **Do not assume it was sent — confirm with the user before treating this as done.**
 
    > **Subject:** SAM OnSite guard onboarding — specification for review
    >

@@ -69,7 +69,7 @@ function eyebrow(num, title) {
   // small accent numeral, calm serif title, faint hairline under
   return new Paragraph({
     heading: HeadingLevel.HEADING_1,
-    spacing: { before: 220, after: 78 }, keepNext: true,
+    spacing: { before: 190, after: 70 }, keepNext: true,
     border: { bottom: { color: RULE, style: BorderStyle.SINGLE, size: 4, space: 6 } },
     children: [
       new TextRun({ text: num + "   ", font: SANS, size: 19, bold: true, color: TEAL, characterSpacing: 10 }),
@@ -98,7 +98,7 @@ function cell(runsOrText, o = {}) {
       })];
   return new TableCell({
     width: { size: o.w, type: WidthType.DXA }, verticalAlign: o.va || VerticalAlign.TOP,
-    margins: { top: 56, bottom: 56, left: 40, right: 150 },
+    margins: { top: 46, bottom: 46, left: 40, right: 150 },
     borders: { top: NONE, bottom: NONE, left: NONE, right: NONE },
     children: paras,
   });
@@ -106,7 +106,7 @@ function cell(runsOrText, o = {}) {
 function hcell(text, w) {
   return new TableCell({
     width: { size: w, type: WidthType.DXA }, verticalAlign: VerticalAlign.BOTTOM,
-    margins: { top: 30, bottom: 52, left: 40, right: 150 },
+    margins: { top: 26, bottom: 44, left: 40, right: 150 },
     borders: { top: NONE, bottom: HEADRULE, left: NONE, right: NONE },
     children: [new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: text.toUpperCase(), font: SANS, size: 15, bold: true, color: TEAL, characterSpacing: 8 })] })],
   });
@@ -193,30 +193,28 @@ kids.push(gap(70));
 
 /* ---- In one minute ---- */
 kids.push(callout([
-  [t("In one minute.  ", { bold: true, color: TEALD }), t("The first time a guard signs in, SAM — the in-app voice assistant — runs a short, required voice exercise that teaches the three things they will do every day: ask a question, report an incident, and correct a report. It uses a made-up incident so nothing real is affected, cannot be skipped, takes a few minutes, saves progress, and is marked complete only after the guard actually performs each step. All practice data must be kept out of every live report and dashboard — and because the filter that enforces this is not built yet, the exercise runs in the internal test environments until it is. A guard can reopen the exercise later as a refresher.")],
+  [t("In one minute.  ", { bold: true, color: TEALD }), t("The first time a guard signs in, SAM introduces itself and shows what it can do. It should feel like unwrapping a good tool, not sitting a test: SAM welcomes them, then walks through the three everyday actions — ask a question, report an incident, fix a report — on a made-up incident so nothing real is affected. It takes a few minutes, saves progress, cannot be skipped, and counts as done only once each step is genuinely done. Practice data must stay out of every live report and dashboard — and because the filter that enforces this is not built yet, it runs in the internal test environments until that is ready. A guard can reopen it later as a refresher.")],
 ]));
 kids.push(gap(40));
 
 /* ---- 01 How it works ---- */
 kids.push(eyebrow("01", "How it works, step by step"));
 kids.push(p([
-  t("Good to know before reading: in SAM, a guard’s message is what creates and updates their report — so a report can be fixed either by telling SAM out loud or by editing the original message. Both are practised below."),
+  t("In SAM, a guard’s message is what creates and updates their report — so a report can be fixed by telling SAM out loud or by editing the original message. Both are practised below; quoted lines show the intended tone, not final copy."),
 ], { after: 60 }));
 const flow = "flow";
 [
-  "The guard signs in. If they have not completed this onboarding, it opens automatically — before the home screen — for new and existing guards alike.",
-  "A welcome screen explains that the exercise is required, uses made-up information, is short, and saves progress.",
-  "The guard turns on the microphone. If they decline, SAM keeps asking with clear guidance. If the microphone truly cannot be enabled (broken hardware or company device policy), the guard is taken to a support screen — showing the site’s support contact — that still carries the always-visible urgent-incident action, so they are never trapped.",
-  "The guard asks SAM a practice question out loud (for example, “How do I report an incident?”) and SAM answers. This is practice only — no report is created.",
-  "The guard reports a made-up incident (“A Dell laptop was stolen”). SAM asks for anything missing and creates one practice report.",
-  "The guard says to change “Dell” to “MacBook.” The same report — and the guard’s own message — update to read “MacBook”; no second report appears.",
-  "The guard long-presses their own message, edits it to “A MacBook was stolen at reception,” and saves. The finished report now shows both “MacBook” and “reception.”",
-  "The exercise is marked complete — but only after SAM has seen the guard do each step for real (a question answered, one practice report created, the report showing each correction) — and the guard arrives at the normal home screen.",
+  "The guard signs in for the first time and SAM opens by itself, before the home screen — for new and existing guards alike.",
+  "SAM introduces itself: “Hello — I’m SAM, your new assistant. From today I do your paperwork, so you can keep your eyes on the site. A few minutes and you’ll know everything you need.”",
+  "SAM asks for the microphone: “I work by voice, so I’ll need your microphone — tap allow and we’re off.” If they decline, SAM keeps asking with clear guidance; if it genuinely cannot be enabled, they go to a support screen rather than being left stuck.",
+  "SAM invites a question: “Ask me anything you’d ask a colleague — try, how do I report an incident?” SAM answers, then: “Any time you’re unsure, just ask.” No report is created here.",
+  "SAM moves to the useful part: “Now tell me about an incident the way you’d tell a colleague — let’s pretend a Dell laptop was stolen.” SAM asks for anything missing, writes one practice report, then: “Done. I wrote that up while you talked.”",
+  "SAM shows corrections are easy: “Got a detail wrong? Just say so — tell me to change the Dell to a MacBook.” The same report and the guard’s own message update; no second report appears.",
+  "SAM offers the other way: “Prefer to type? Press and hold your message and edit it yourself.” The guard edits it to “A MacBook was stolen at reception,” and the finished report shows both “MacBook” and “reception.”",
+  "SAM closes warmly: “That’s the lot — you know everything you need. I’ll be here whenever you want me, just talk.” Completion is recorded only after SAM has seen each step done for real, and the guard arrives at the home screen.",
 ].forEach((s) => kids.push(numitem(flow, s)));
 kids.push(new Paragraph({ spacing: { before: 20, after: 40 }, children: [
-  t("Throughout, the practice report carries a training mark from the instant it is created; that mark is what must keep it out of every live report, dashboard, analytics view, export, automated alert or integration, and the guard’s own activity list and search. An always-visible ", { size: 18, color: GREY }),
-  t("Report an urgent incident", { size: 18, bold: true, color: GREY }),
-  t(" action — a safety measure we added — lets a guard handle a real emergency at any moment, even without a microphone, and returns them to where they left off.", { size: 18, color: GREY }),
+  t("Throughout, the practice report carries a training mark from the instant it is created; that mark is what must keep it out of every live report, dashboard, analytics view, export, automated alert or integration, and the guard’s own activity list and search.", { size: 18, color: GREY }),
 ] }));
 
 /* ---- 02 Requirements & proof ---- */
@@ -234,19 +232,20 @@ function reqRow(name, key, detail) {
   return [cell(left, { w: 2340, va: VerticalAlign.TOP }), cell([new Paragraph({ spacing: { after: 0, line: 244, lineRule: "auto" }, children: [t(detail, { size: 18 })] })], { w: 7308, va: VerticalAlign.TOP })];
 }
 const REQ = [
+  ["Feels like a welcome, not a test", "C", "SAM opens with a warm greeting saying what it does for the guard and why that helps, frames each step as a benefit (“I wrote that up while you talked”), encourages briefly after each, and signs off warmly. Short, friendly, first-person — never a dry list of instructions. Confirmed by a product read-through and by four of five test guards calling it welcoming, not a test."],
   ["Automatic start & refresher", "C", "It opens by itself the first time a guard signs in, before they can reach the home screen. A guard who has finished can reopen it any time as a refresher without losing their completed status."],
   ["Everyone, exactly once", "C", "Every active guard receives it one time — including guards who already had accounts before this feature. After finishing, their next sign-in goes straight to the home screen."],
-  ["Cannot be skipped", "C", "There is no way to reach the home screen except by completing it. The only exception is the urgent-incident action, which is a detour, not a way to finish."],
-  ["Microphone required, never a dead end", "C", "The guard must allow the microphone; declining re-prompts with guidance. If it genuinely cannot be enabled (broken hardware or company device policy), the guard reaches a support screen (the site’s support contact and a way to reach them) that still shows the urgent-incident action — confirmed when a blocked-microphone guard can leave the prompt and is never trapped."],
-  ["Ask a question (practice only)", "P", "The guard asks SAM a spoken question and SAM answers. Confirmed correct when SAM gives an answer and no report is created by this step."],
+  ["Cannot be skipped", "C", "There is no way to reach the home screen except by completing it."],
+  ["Microphone required, never a dead end", "C", "The guard must allow the microphone; declining re-prompts with friendly guidance. If it genuinely cannot be enabled (broken hardware or device policy), the guard reaches a support screen — confirmed when a blocked-microphone guard can leave the prompt and is never trapped."],
+  ["Ask a question (practice only)", "P", "The guard asks a spoken question and SAM answers. Confirmed when SAM answers and no report is created by this step."],
   ["Report one practice incident", "P", "The guard reports the made-up incident and SAM creates exactly one practice report. Repeats or retries must never create extra reports."],
   ["Fix a report by voice", "C", "The guard tells SAM to change “Dell” to “MacBook”; the same report updates and no duplicate appears. (The exact way the app updates the report is a Check-with-engineering item.)"],
   ["Fix a report by hand", "C", "The guard long-presses their own message, edits it, and saves; the finished report contains both “MacBook” and “reception.” (Whether the app already supports this edit is a Check-with-engineering item.)"],
   ["Marked as training at creation", "C", "Every practice report is flagged as training (archive / soft-delete) the moment it is created — the platform already has this flag for exactly this purpose — so a report never exists un-marked."],
-  ["Kept out of every live surface", "C", "The practice report must appear in no live surface — reports, dashboards, analytics, exports, automated alerts and integrations, and the guard’s own activity list and search. The filter that excludes training-marked data does not exist yet, so archived data is currently still visible in production; this exclusion filter must be built and verified before go-live. Until then the exercise runs only in the internal test environments."],
-  ["Finishing is earned & remembered", "P", "Completion is recorded only after SAM sees the guard actually do each step — never a quiz or an “I’m done” button. It is stored on the server as version 1, issued once per guard, survives closing the app or switching devices, and cannot be duplicated."],
-  ["Emergencies always get through", "P", "A safety measure we added, not an original requirement: a “Report an urgent incident” action is visible on every onboarding screen, works without a microphone, opens normal reporting, and returns the guard to where they left off. It does not count as finishing or skipping."],
+  ["Kept out of every live surface", "C", "The practice report must appear in no live surface — reports, dashboards, analytics, exports, automated alerts and integrations, and the guard’s own activity list and search. The filter that excludes training-marked data does not exist yet, so archived data is still visible in production; it must be built and verified before go-live. Until then this runs only in the internal test environments."],
+  ["Finishing is earned & remembered", "P", "Completion is recorded only after SAM sees each step done for real — never a quiz or an “I’m done” button. Stored on the server as version 1, issued once per guard, survives closing the app or switching devices, and cannot be duplicated."],
   ["Visual aids come later", "C", "Extra visual help (tooltips, highlights) for dark or noisy sites is not built now; the need is judged during testing."],
+  ["A way out for a real incident (minor)", "P", "Deliberately small: leave onboarding, report a real incident, and return to where they left off, without it counting as finishing or skipping. In practice guards handle real emergencies as they always have, and new guards are accompanied early on — a low-priority safeguard, not a focus."],
 ];
 kids.push(table([2340, 7308], ["Requirement", "What it means and how we confirm it"], REQ.map((r) => reqRow(r[0], r[1], r[2]))));
 
@@ -256,19 +255,19 @@ kids.push(subhead("PRACTICE DATA MUST NEVER REACH LIVE OPERATIONS"));
 kids.push(p([
   t("The made-up incident must never trigger a real response. Every practice report is marked as training the moment it is created — the platform already has this archive / soft-delete flag. "),
   t("The dependency to be clear about:", { bold: true }),
-  t(" the filtering that actually keeps marked data out of live surfaces does not exist yet — today, archived items are still visible in production — so it is a required enhancement, not something that works today. This exercise therefore runs only in the internal test environments until that exclusion filter is built and verified, and must not go live in production before then. When built, the filter should work "),
+  t(" the filtering that keeps marked data out of live surfaces does not exist yet — today, archived items are still visible in production — so it is a required enhancement, not something that works today. This runs only in the internal test environments until that filter is built and verified, and must not go live before then. When built, it should work "),
   t("hide-by-default", { bold: true }),
-  t(" at the shared data layer, so every current and future live surface excludes training data automatically rather than each one having to remember to. Permanent deletion of practice data is a separate database clean-up done later; only the guard’s completion status is kept."),
+  t(" at the shared data layer, so every current and future surface excludes training data automatically. Permanent deletion is a separate clean-up done later; only the guard’s completion status is kept."),
 ]));
 kids.push(subhead("COMPLETION IS SERVER-SIDE, EARNED, AND SAFE UNDER PRESSURE"));
 kids.push(p([
-  t("Onboarding is marked complete only after the system observes the guard perform each real action, and that status lives on the server (never trusted from the phone alone). It is issued once per guard, resumes safely if the app closes or the guard switches devices, and two sessions at once can never create duplicate reports or roll progress backwards. If practice data cannot be safely hidden at any point, completion is withheld and the guard stays in the exercise — protecting live data always outranks finishing."),
+  t("Completion is recorded only after the system observes each real action, and lives on the server (never trusted from the phone). It is issued once per guard, resumes safely if the app closes or the guard switches devices, and two sessions at once can never create duplicate reports or roll progress backwards. If practice data cannot be safely hidden, completion is withheld and the guard stays in the exercise — protecting live data outranks finishing."),
 ], { after: 40 }));
 
 /* ---- 04 Unhappy paths ---- */
 kids.push(eyebrow("04", "Handling the unhappy paths"));
 kids.push(table([2500, 7148], ["If this happens", "What the guard experiences"], [
-  ["Microphone declined or unavailable", "SAM keeps asking with clear steps to enable it; a truly blocked microphone routes to support. The urgent-incident action still works without a microphone, so a real emergency is never blocked."],
+  ["Microphone declined or unavailable", "SAM keeps asking with friendly, clear steps to enable it; a truly blocked microphone routes to support so the guard is never stuck."],
   ["Network, speech, or save fails", "Progress is kept and a clear “try again” is shown; the current step and any edit are never silently lost."],
   ["A spoken correction is misheard", "SAM asks again; the guard can retry by voice or switch to the manual long-press edit instead."],
   ["A manual edit fails to save", "The failure is shown and the guard’s typed text is kept for another try; the report is never left half-changed."],
@@ -293,7 +292,7 @@ kids.push(eyebrow("06", "Rollout, guardrails, and done"));
 kids.push(p([
   t("Production go-live is "),
   t("blocked", { bold: true }),
-  t(" until the exclusion filter that hides training data from every live surface is built and verified; until then this runs only in the internal test environments (DEV/UAT) with a dedicated test customer account (tenant) and test guards. Roll out behind a switch so it can be turned on gradually and turned off instantly, without erasing anyone’s completed status. This is universal for all guards — no customer-specific setup — and it does not change any existing templates. Nothing reaches production without Vincent Smeyers’ sign-off."),
+  t(" until the exclusion filter that hides training data from every live surface is built and verified; until then it runs only in DEV/UAT with a dedicated test tenant and test guards. Roll out behind a switch, so it can be enabled gradually and turned off instantly without erasing completed status. It is universal for all guards — no customer-specific setup — and changes no existing templates. Nothing reaches production without Vincent Smeyers’ sign-off."),
 ], { after: 60 }));
 kids.push(subhead("DONE MEANS"));
 const done = "done";
@@ -305,7 +304,7 @@ const done = "done";
 
 kids.push(new Paragraph({ spacing: { before: 90 },
   border: { top: { color: RULE, style: BorderStyle.SINGLE, size: 5, space: 5 } },
-  children: [t("This document describes intended behaviour for internal build and testing. No production change is made until Vincent Smeyers has signed off.", { size: 16, it: true, color: GREY })] }));
+  children: [t("Internal build and testing only — no production change until Vincent Smeyers has signed off.", { size: 16, it: true, color: GREY })] }));
 
 /* ================= NUMBERING ================= */
 const numbering = { config: [] };

@@ -16,6 +16,18 @@ Builders (Node + `docx`): `build_spec.js` and `build_detailed_spec.js`. Run eith
 The two documents share one visual identity and are kept factually consistent; the detailed spec
 carries FR-01–20 → AC-01–15 → UAT-01–21 with a full traceability matrix behind the brief's claims.
 
+## Latest revision — reviewer feedback incorporated
+
+Following Jeroen's review, two changes run through both documents:
+
+- **Engagement.** The onboarding is framed as receiving a useful new tool, not sitting a test. SAM
+  introduces itself and every step is framed as a benefit to the guard. This is a real requirement
+  (FR-21 → AC-16 → UAT-22), not just tone guidance, with an explicit fail condition: a dry
+  "do this, then that" sequence does not meet it.
+- **Urgent-incident path reduced.** Kept, but deliberately minor and labelled low-priority — in
+  practice guards handle real emergencies as they always have, and new guards are accompanied
+  early on.
+
 ## Key product fact (per Vincent Smeyers)
 
 The archive / "training" flag exists and can be used now, but the **filter that excludes that data

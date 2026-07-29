@@ -100,11 +100,11 @@ const dcell = (key, text, w, fill) => cell([chip(key), t("  " + text, { size: 18
 const FR = [
   ["FR-01", "C", "Trigger", "Onboarding launches automatically right after a guard’s first successful sign-in, and can be reopened later as a refresher."],
   ["FR-02", "C", "Audience", "Every active guard receives it exactly once — including guards whose accounts existed before this feature."],
-  ["FR-03", "C", "Mandatory", "There is no path to the home screen except by completing it (the urgent-incident action is a detour, not a finish)."],
+  ["FR-03", "C", "Mandatory", "There is no path to the home screen except by completing it."],
   ["FR-04", "C", "Refresher", "A completed guard can reopen the training; reopening never clears or regresses completion."],
   ["FR-05", "C", "Language", "All onboarding voice and screen copy is English for the MVP."],
-  ["FR-06", "C", "Microphone", "The guard must enable the microphone; declining re-prompts with guidance. If it truly cannot be enabled (broken hardware or device policy), the guard reaches a support screen that still shows the urgent-incident action — never trapped."],
-  ["FR-07", "P", "Transcription check", "A speaking step is credited only after at least one successful voice transcription; an empty or failed transcription does not advance the step."],
+  ["FR-06", "C", "Microphone", "The guard must enable the microphone; declining re-prompts with friendly guidance. If it truly cannot be enabled (broken hardware or device policy), the guard reaches a support screen and is never left trapped on the prompt."],
+  ["FR-07", "P", "Transcription check", "A speaking step is credited only after at least one successful voice transcription; an empty or failed transcription does not advance the step. Steps are judged on the guard demonstrating the intended action and on the resulting report state — semantically-equivalent English is accepted, never an exact phrase."],
   ["FR-08", "P", "Ask a question", "The guard asks SAM a spoken question and SAM answers. This step runs in a practice context and creates no report."],
   ["FR-09", "P", "One practice report", "Reporting the fictional incident creates exactly one practice report. Retries or repeated messages must not create additional reports."],
   ["FR-10", "C", "Voice correction", "A spoken correction (Dell → MacBook) updates the same report in place, with no duplicate. (The exact way the app updates the report is an engineering confirmation — see Confirm with engineering.)"],
@@ -114,16 +114,17 @@ const FR = [
   ["FR-14", "P", "Completion integrity", "Completion is recorded server-side and versioned (version 1), issued once per guard, and set only after each required action is observed — never a quiz or an “I’m done” button."],
   ["FR-15", "P", "Fail-closed", "If safe isolation of practice data cannot be assured at any step, the step fails and completion is not marked; the guard stays in the exercise."],
   ["FR-16", "C", "Hand-off", "On confirmed completion the guard reaches the normal home screen (Talk / Capture / Type)."],
-  ["FR-17", "P", "Urgent-incident path", "A safety measure we added (not an original requirement): an always-visible “Report an urgent incident” action, usable without a microphone, opens normal reporting and returns the guard to the saved stage. It does not count as finishing or skipping."],
+  ["FR-17", "P", "Way out for a real incident", "Low priority, deliberately minimal: a way to leave onboarding, report a real incident through normal reporting, and return to the saved stage without it counting as finishing or skipping. In practice a guard deals with a genuine emergency however they always have, and new guards are accompanied early on — so this is a safeguard, not a focus of the build. Keep the implementation small."],
   ["FR-18", "P", "Idempotency / concurrency", "One onboarding record and one active practice-report reference per guard. Retries do not duplicate; the newest valid server-side progress wins with no regression; the completion operation is idempotent."],
   ["FR-19", "P", "Privacy / telemetry", "Telemetry records only stage and error codes and completion metrics. It does not keep microphone-permission state beyond need, does not log raw voice/transcript content beyond existing policy, and never routes fictional incident content into operational analytics."],
   ["FR-20", "C", "Deferred visual support", "Extra visual help (tooltips, highlight animations) for dark or noisy sites is deferred; the need is judged during testing, not built for the MVP. (Scope decision — no separate test.)"],
+  ["FR-21", "C", "Tone and engagement", "The experience must feel like receiving a useful new tool, not sitting a test. SAM opens with a warm, personal greeting that names what it does for the guard and why that helps them, frames each step as a benefit, encourages briefly after each success, uses short everyday language, and closes warmly. A dry “do this, then that” sequence does not meet this requirement. See Tone and script for the principles and reference copy."],
 ];
 const AC = [
   ["AC-01", "FR-01", "Given an active guard who has not completed onboarding, when they sign in, then it launches automatically before the home screen is reachable."],
   ["AC-02", "FR-02", "Given an existing guard (account predating this feature) who has not completed it, when they sign in, then they receive it exactly once; after completion a later sign-in goes straight to home."],
-  ["AC-03", "FR-03", "Given onboarding in progress, when the guard tries to skip, then there is no path to home except completion (or the urgent-incident detour)."],
-  ["AC-04", "FR-06", "Given microphone permission denied, when the guard tries to proceed, then SAM re-prompts and speaking steps do not advance; if the mic truly cannot be enabled, the guard reaches a support screen that still shows the urgent-incident action."],
+  ["AC-03", "FR-03", "Given onboarding in progress, when the guard tries to skip, then there is no path to home except completion (or the minor way out for a real incident)."],
+  ["AC-04", "FR-06", "Given microphone permission denied, when the guard tries to proceed, then SAM re-prompts warmly and speaking steps do not advance; if the mic truly cannot be enabled, the guard reaches a support screen and is not trapped."],
   ["AC-05", "FR-07", "Given a speaking step, when transcription fails or returns empty, then the step is not credited and the guard is asked to try again."],
   ["AC-06", "FR-08 / FR-09", "Given the guard asks a question, then SAM answers and no report is created; given the guard then reports the incident, then exactly one practice report exists (retries add none)."],
   ["AC-07", "FR-10", "Given a practice report naming a Dell, when the guard says to change it to a MacBook, then the same report updates and no second report is created."],
@@ -132,16 +133,17 @@ const AC = [
   ["AC-10", "FR-14 / FR-15", "Given every required action observed and isolation assured, when completion runs, then version 1 is recorded server-side; if isolation cannot be assured, completion is withheld."],
   ["AC-11", "FR-04 / FR-16", "Given a completed guard, when they finish, then they reach home; and reopening the training later preserves completion."],
   ["AC-12", "FR-18", "Given duplicate concurrent sessions or retried messages, then no duplicate record or report is created and progress does not regress."],
-  ["AC-13", "FR-17", "Given a real urgent incident during onboarding, when the guard uses the urgent action, then normal reporting opens and, on return, the saved stage resumes with completion neither granted nor skipped."],
+  ["AC-13", "FR-17", "Given a guard leaves onboarding to report a real incident, then normal reporting opens and, on return, the saved stage resumes with completion neither granted nor skipped."],
   ["AC-14", "FR-05", "Given any onboarding screen or prompt, then all voice and screen copy is in English."],
   ["AC-15", "FR-19", "Given a run, when telemetry and analytics are inspected, then only stage/error codes and completion metrics are recorded, with no raw voice/transcript content and no fictional incident content in operational analytics."],
+  ["AC-16", "FR-21", "Given the full run-through, then it opens with a warm personal greeting, each step is framed as a benefit with a brief encouragement after it, and the close is warm — signed off by product on a read-through, and at least four of five test guards describing it as welcoming rather than test-like. If fewer do, the copy is revised and re-run."],
 ];
 const UAT = [
   ["UAT-01", "AC-01", "New guard’s first sign-in triggers onboarding.", "Shown before home; progress record created."],
   ["UAT-02", "AC-02", "Existing (pre-feature) guard is issued it once.", "Runs once; next sign-in after completion goes to home."],
-  ["UAT-03", "AC-03", "Attempt to skip onboarding. (negative)", "No skip path to home; only completion or urgent detour."],
+  ["UAT-03", "AC-03", "Attempt to skip onboarding. (negative)", "No skip path to home; only completion or the real-incident exit."],
   ["UAT-04", "AC-04", "Deny microphone, then try to continue. (negative)", "Re-prompt with guidance; speaking steps blocked."],
-  ["UAT-05", "AC-04", "Microphone truly unavailable (device policy). (negative)", "Support screen reached; urgent action present; not trapped."],
+  ["UAT-05", "AC-04", "Microphone truly unavailable (device policy). (negative)", "Support screen reached; guard not trapped on the prompt."],
   ["UAT-06", "AC-05", "Force a failed / empty transcription. (negative)", "Step not credited; retry prompted."],
   ["UAT-07", "AC-06", "Ask SAM a question.", "SAM answers; no report created."],
   ["UAT-08", "AC-06", "Report the fictional incident.", "Exactly one practice report exists."],
@@ -155,9 +157,10 @@ const UAT = [
   ["UAT-16", "AC-12", "Duplicate concurrent sessions / retried messages. (negative)", "One record, one report; no progress regression."],
   ["UAT-17", "AC-12", "Network drop mid-step, resume on another device. (negative)", "Progress preserved; resumes at saved stage; no loss."],
   ["UAT-18", "AC-11", "Reopen training after completion (refresher).", "Reopens; completion preserved, not cleared."],
-  ["UAT-19", "AC-13", "Trigger the urgent-incident path mid-onboarding.", "Normal reporting opens; returns to saved stage; completion neither granted nor skipped."],
+  ["UAT-19", "AC-13", "Leave onboarding to report a real incident, then return.", "Normal reporting opens; returns to saved stage; completion neither granted nor skipped."],
   ["UAT-20", "AC-14", "Review all onboarding copy.", "All copy is English."],
   ["UAT-21", "AC-15", "Inspect telemetry and analytics during a run. (negative)", "Only stage/error + completion metrics; no raw content; no fictional data in analytics."],
+  ["UAT-22", "AC-16", "Full run-through with at least five test guards, reviewing tone.", "Warm personal opening; each step framed as a benefit with brief encouragement; warm close. At least four of five describe it as welcoming, not a test; product signs off the copy."],
 ];
 const TRACE = [
   ["Auto-launch + refresher", "FR-01", "AC-01", "UAT-01", "Shown before home; refresher reopens"],
@@ -165,7 +168,7 @@ const TRACE = [
   ["Mandatory", "FR-03", "AC-03", "UAT-03", "No skip path"],
   ["Refresher keeps completion", "FR-04", "AC-11", "UAT-18", "Completion preserved on reopen"],
   ["English MVP", "FR-05", "AC-14", "UAT-20", "All copy English"],
-  ["Mic denied never a dead end", "FR-06", "AC-04", "UAT-04/05", "Re-prompt; support screen keeps urgent action"],
+  ["Mic denied never a dead end", "FR-06", "AC-04", "UAT-04/05", "Re-prompt; support screen; not trapped"],
   ["Transcription must succeed", "FR-07", "AC-05", "UAT-06", "Failed transcription not credited"],
   ["Ask a question (SAM answers, no report)", "FR-08", "AC-06", "UAT-07", "Answer given; no report"],
   ["One practice report", "FR-09", "AC-06", "UAT-08", "Exactly one report"],
@@ -176,10 +179,11 @@ const TRACE = [
   ["Completion observed, server-side, versioned", "FR-14", "AC-10", "UAT-15", "Version 1 server-side"],
   ["Fail-closed isolation", "FR-15", "AC-10", "UAT-14", "Completion withheld on failure"],
   ["Reaches home", "FR-16", "AC-11", "UAT-15", "Home after completion"],
-  ["Urgent-incident safety path (added)", "FR-17", "AC-13", "UAT-19", "Reporting opens; stage resumes"],
+  ["Way out for a real incident (minor)", "FR-17", "AC-13", "UAT-19", "Reporting opens; stage resumes"],
   ["Idempotency / concurrency", "FR-18", "AC-12", "UAT-16/17", "No duplicates; no regression"],
   ["Privacy / telemetry", "FR-19", "AC-15", "UAT-21", "No raw content; no fictional data in analytics"],
   ["Deferred visual support", "FR-20", "—", "—", "Scope decision; evaluated in testing"],
+  ["Feels like a welcome, not a test", "FR-21", "AC-16", "UAT-22", "Warm intro; benefit framing; test guards agree"],
 ];
 
 /* ================= CONTENT ================= */
@@ -216,6 +220,7 @@ kids.push(p([
 ]));
 const decRef = "dec";
 [
+  "It must feel like receiving a useful new tool, not sitting a test — SAM introduces itself and the tone stays warm and encouraging throughout.",
   "Every guard receives it once, including existing guards; it is mandatory and cannot be skipped.",
   "“Generate a report” means reporting a fictional incident by talking to SAM. Applies to all guards; configuration is universal, not customer-specific.",
   "A completed guard can reopen it later as a refresher without losing completion. English for the MVP.",
@@ -230,7 +235,7 @@ kids.push(subhead("IN SCOPE"));
 const inRef = "insc";
 [
   "A universal, application-level onboarding that launches at first sign-in and is reopenable as a refresher.",
-  "One guided pass through: ask a question, report a fictional incident, correct it by voice and by manual edit.",
+  "One guided pass through: ask a question, report a fictional incident, correct it by voice and by manual edit — delivered in a warm, welcoming tone.",
   "Server-side, versioned completion tracking that issues version 1 exactly once to every active guard.",
   "Isolation of all fictional practice data from every live surface (dependent on the exclusion filter described later).",
 ].forEach((s) => kids.push(bullet(inRef, s)));
@@ -260,31 +265,48 @@ kids.push(p([t("Good to know: in SAM, a guard’s message is what creates and up
 const flowRef = "flow";
 [
   "The guard signs in; if onboarding is not complete, it opens automatically before the home screen (new and existing guards).",
-  "A welcome screen explains it is required, uses made-up information, is short, and saves progress.",
-  "The guard enables the microphone. If declined, SAM re-prompts; if it truly cannot be enabled, the guard reaches a support screen that still shows the urgent-incident action.",
-  "The guard asks SAM a practice question and SAM answers — no report is created.",
+  "SAM introduces itself with a warm greeting and says plainly what it does for the guard; the screen also makes clear this is short, uses made-up information, and saves progress.",
+  "The guard enables the microphone, framed as SAM wanting to hear them. If declined, SAM re-prompts warmly; if it truly cannot be enabled, the guard reaches a support screen and is not left stuck.",
+  "The guard asks SAM a practice question and SAM answers, then reassures them they can ask anything — no report is created.",
   "The guard reports “A Dell laptop was stolen.” SAM asks for anything missing and creates one practice report.",
   "The guard says to change “Dell” to “MacBook”; the same report and message update; no second report appears.",
   "The guard long-presses their message, edits it to “A MacBook was stolen at reception,” and saves; the final report shows both “MacBook” and “reception.”",
-  "Completion is marked only after each step is observed for real; the guard reaches the normal home screen. A completed guard may reopen the training later without losing completion.",
+  "SAM closes on a high note and makes itself available. Completion is marked only after each step is observed for real; the guard reaches the normal home screen. A completed guard may reopen the training later without losing completion.",
 ].forEach((s) => kids.push(numitem(flowRef, s)));
 
-/* 05 Script */
-kids.push(eyebrow("05", "Voice and screen script"));
-kids.push(p([chip("P"), t("  Reference copy. Where completion is judged by final system state, the guard need only demonstrate the intended action — semantically-equivalent English is accepted.")], { after: 50 }));
+/* 05 Tone and script */
+kids.push(eyebrow("05", "Tone and script"));
+kids.push(p([
+  t("This is a guard’s first meeting with a tool that is meant to make their job easier, so it should land like unwrapping something good — not like being tested. SAM introduces itself, and every step is framed as a win for the guard rather than an instruction to follow."),
+]));
+kids.push(subhead("HOW IT SHOULD SOUND"));
+const toneRef = "tone";
+[
+  "Warm and first-person. SAM has a personality: it greets the guard by way of introduction and says plainly what it does for them and why that helps.",
+  "Every step sells the benefit, not the mechanic — “I wrote that up while you talked,” not “an Activity record has been created.”",
+  "Encourage after each success, briefly. A short “that’s it” or “fixed — no forms, no rewriting” is enough.",
+  "Short lines, everyday words, no system jargon. Never a numbered list of instructions read aloud.",
+  "Close on a high note and make SAM available: “That’s the lot — you know everything you need. I’ll be here whenever you want me, just talk.”",
+].forEach((s) => kids.push(bullet(toneRef, s)));
+kids.push(p([chip("P"), t("  Reference copy below — the intended tone, to be polished with product before build. It is not final wording, and no line here is a locked string.")], { after: 50 }));
 kids.push(table([1500, 4074, 4074], ["Stage", "SAM says", "Guard does"], [
-  ["Welcome", "“Welcome to SAM. This quick practice is required and uses made-up information. Your progress is saved.”", "Reads; taps Start."],
-  ["Microphone", "“I need your microphone to hear you. Please enable microphone access to continue.”", "Grants access (re-prompted until granted)."],
-  ["Ask a question", "“Try asking me something — for example, ‘How do I report an incident?’”", "Asks; SAM answers. No report created."],
-  ["Report", "“Now report a practice incident — for example, ‘A Dell laptop was stolen.’ I may ask for a few details.”", "Reports; one practice report is created."],
-  ["Voice fix", "“Mistakes happen. Tell me to change Dell to MacBook.”", "“Change the Dell to a MacBook.” Same report updates."],
-  ["Manual fix", "“You can also fix it yourself — long-press your message, edit it, and save.”", "Edits message to “…MacBook…at reception.” and saves."],
-  ["Finish", "“Great work — here’s your home screen.”", "Continues to home once completion is confirmed."],
+  ["Welcome", "“Hello — I’m SAM, your new assistant. From today I do your paperwork, so you can keep your eyes on the site. A few minutes and you’ll know everything you need.”", "Reads; taps Start."],
+  ["Practice context", "“Everything here is pretend — nothing you say is filed as a real report, so try things without worrying. I’ll save where you get to.”", "Understands nothing is real."],
+  ["Microphone", "“I work by voice, so I’ll need your microphone — tap allow and we’re off.”", "Grants access (re-prompted, warmly, until granted)."],
+  ["Ask a question", "“Ask me anything you’d ask a colleague. Try — how do I report an incident?” … “Any time you’re unsure, just ask.”", "Asks; SAM answers. No report created."],
+  ["Report", "“Now tell me about an incident the way you’d tell a colleague. Let’s pretend — a Dell laptop was stolen.” … “Done. I wrote that up while you talked.”", "Reports; one practice report is created."],
+  ["Voice fix", "“Got a detail wrong? Just say so — tell me to change the Dell to a MacBook.” … “Fixed. No forms, no rewriting.”", "“Change the Dell to a MacBook.” Same report updates."],
+  ["Manual fix", "“Prefer to type? Press and hold your message and edit it yourself — add where it happened.”", "Edits message to “…MacBook…at reception.” and saves."],
+  ["Finish", "“That’s the lot — you know everything you need. I’ll be here whenever you want me, just talk.”", "Continues to home once completion is confirmed."],
 ]));
 
 /* 06 Functional requirements */
 kids.push(eyebrow("06", "Functional requirements"));
-kids.push(p("Each requirement is traced to acceptance criteria and tests in the Traceability matrix.", { after: 50 }));
+kids.push(p([
+  t("Each requirement is traced to acceptance criteria and tests in the Traceability matrix. Note that "),
+  t("FR-21 (tone and engagement)", { bold: true }),
+  t(" carries the same weight as any functional rule here — how this feels to the guard is a requirement, not decoration."),
+], { after: 50 }));
 kids.push(table([850, 2100, 6698], ["ID", "Requirement", "Detail"],
   FR.map((r) => [r[0], [t(r[2], { size: 18, bold: true })], [chip(r[1]), t("  " + r[3], { size: 18 })]])));
 
@@ -317,12 +339,12 @@ kids.push(p("Completion is recorded only after the system observes each real act
 /* 09 Errors */
 kids.push(eyebrow("09", "Error and recovery behaviour"));
 kids.push(table([3000, 6648], ["Condition", "Behaviour"], [
-  ["Microphone declined or unavailable", "Keep prompting with clear guidance; a truly blocked mic reaches a support screen that still shows the urgent-incident action. Speaking steps do not advance until the mic is on."],
+  ["Microphone declined or unavailable", "Keep prompting with friendly guidance; a truly blocked mic reaches a support screen so the guard is not trapped. Speaking steps do not advance until the mic is on."],
   ["Network, speech, or save failure", "Preserve progress; show a retryable error; never silently lose the current step or an edit."],
   ["Voice correction misheard", "SAM re-asks; the guard retries by voice or uses the manual long-press edit."],
   ["Manual save failure", "Show the failure and keep the typed text for retry; the report is never left half-edited."],
   ["Isolation cannot be assured", "Fail closed: withhold completion, keep the guard in the exercise, record only a stage/error code — never the practice content."],
-  ["Real urgent incident", "The urgent-incident action opens normal reporting and returns to the saved stage; completion is neither granted nor skipped."],
+  ["A real incident comes up", "The guard can leave onboarding, report it through normal reporting, and return to the saved stage; completion is neither granted nor skipped. Minor path — see the requirement note."],
 ]));
 
 /* 10 Acceptance criteria */
@@ -383,7 +405,7 @@ kids.push(new Paragraph({ spacing: { before: 90 }, border: { top: { color: RULE,
 
 /* ================= NUMBERING ================= */
 const numbering = { config: [] };
-[decRef, inRef, outRef, rollRef, dodRef, valRef].forEach((reference) => numbering.config.push({
+[decRef, inRef, outRef, rollRef, dodRef, valRef, toneRef].forEach((reference) => numbering.config.push({
   reference, levels: [{ level: 0, format: LevelFormat.BULLET, text: "–", alignment: AlignmentType.LEFT,
     style: { run: { font: SANS, size: 19, color: TEAL }, paragraph: { indent: { left: 360, hanging: 220 } } } }],
 }));
