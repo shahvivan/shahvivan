@@ -206,7 +206,8 @@ const flow = "flow";
 [
   "The guard signs in for the first time and SAM opens by itself, before the home screen — for new and existing guards alike.",
   "SAM introduces itself: “Hello — I’m SAM, your new assistant. From today I do your paperwork, so you can keep your eyes on the site. A few minutes and you’ll know everything you need.”",
-  "SAM asks for the microphone: “I work by voice, so I’ll need your microphone — tap allow and we’re off.” If they decline, SAM keeps asking with clear guidance; if it genuinely cannot be enabled, they go to a support screen rather than being left stuck.",
+  "SAM gets itself set up: “Tap here, turn on all the permissions for SAM OnSite, then come back and tell me you’re done.” The link opens SAM OnSite’s permissions in the phone’s settings; the guard turns them on, returns, and says or types “done.” SAM checks for itself — naming anything still off and linking back, or confirming and moving on.",
+  "SAM does the same for NFC: “One more — tap here to switch on NFC, that’s what reads the checkpoint tags. Tell me when it’s done.” The guard enables it, returns, says or types “done”, and SAM confirms NFC is on.",
   "SAM invites a question: “Ask me anything you’d ask a colleague — try, how do I report an incident?” SAM answers, then: “Any time you’re unsure, just ask.” No report is created here.",
   "SAM moves to the useful part: “Now tell me about an incident the way you’d tell a colleague — let’s pretend a Dell laptop was stolen.” SAM asks for anything missing, writes one practice report, then: “Done. I wrote that up while you talked.”",
   "SAM shows corrections are easy: “Got a detail wrong? Just say so — tell me to change the Dell to a MacBook.” The same report and the guard’s own message update; no second report appears.",
@@ -214,7 +215,7 @@ const flow = "flow";
   "SAM closes warmly: “That’s the lot — you know everything you need. I’ll be here whenever you want me, just talk.” Completion is recorded only after SAM has seen each step done for real, and the guard arrives at the home screen.",
 ].forEach((s) => kids.push(numitem(flow, s)));
 kids.push(new Paragraph({ spacing: { before: 20, after: 40 }, children: [
-  t("Throughout, the practice report carries a training mark from the instant it is created; that mark is what must keep it out of every live report, dashboard, analytics view, export, automated alert or integration, and the guard’s own activity list and search.", { size: 18, color: GREY }),
+  t("Throughout, the practice report carries a training mark from the instant it is created; that mark is what must keep it out of every live report, dashboard, analytics view, export, alert, integration, and the guard’s own activity list.", { size: 18, color: GREY }),
 ] }));
 
 /* ---- 02 Requirements & proof ---- */
@@ -236,7 +237,7 @@ const REQ = [
   ["Automatic start & refresher", "C", "It opens by itself the first time a guard signs in, before they can reach the home screen. A guard who has finished can reopen it any time as a refresher without losing their completed status."],
   ["Everyone, exactly once", "C", "Every active guard receives it one time — including guards who already had accounts before this feature. After finishing, their next sign-in goes straight to the home screen."],
   ["Cannot be skipped", "C", "There is no way to reach the home screen except by completing it."],
-  ["Microphone required, never a dead end", "C", "The guard must allow the microphone; declining re-prompts with friendly guidance. If it genuinely cannot be enabled (broken hardware or device policy), the guard reaches a support screen — confirmed when a blocked-microphone guard can leave the prompt and is never trapped."],
+  ["Permissions and NFC — checked, not assumed", "C", "A link takes the guard straight to SAM OnSite’s permissions in the phone’s settings; they turn everything on, return, and say or type “done.” SAM verifies each one and names anything still off rather than taking their word — then repeats this for NFC, which reads the checkpoint tags. The confirmation must accept typing or tapping, since until the microphone is on the guard cannot speak. Anything that genuinely cannot be enabled routes to support, so they are never trapped."],
   ["Ask a question (practice only)", "P", "The guard asks a spoken question and SAM answers. Confirmed when SAM answers and no report is created by this step."],
   ["Report one practice incident", "P", "The guard reports the made-up incident and SAM creates exactly one practice report. Repeats or retries must never create extra reports."],
   ["Fix a report by voice", "C", "The guard tells SAM to change “Dell” to “MacBook”; the same report updates and no duplicate appears. (The exact way the app updates the report is a Check-with-engineering item.)"],
@@ -267,7 +268,7 @@ kids.push(p([
 /* ---- 04 Unhappy paths ---- */
 kids.push(eyebrow("04", "Handling the unhappy paths"));
 kids.push(table([2500, 7148], ["If this happens", "What the guard experiences"], [
-  ["Microphone declined or unavailable", "SAM keeps asking with friendly, clear steps to enable it; a truly blocked microphone routes to support so the guard is never stuck."],
+  ["A permission or NFC is still off", "SAM names exactly what is missing and links straight back to the setting; it does not advance on the guard’s word alone. Anything that genuinely cannot be enabled routes to support so the guard is never stuck."],
   ["Network, speech, or save fails", "Progress is kept and a clear “try again” is shown; the current step and any edit are never silently lost."],
   ["A spoken correction is misheard", "SAM asks again; the guard can retry by voice or switch to the manual long-press edit instead."],
   ["A manual edit fails to save", "The failure is shown and the guard’s typed text is kept for another try; the report is never left half-changed."],
@@ -292,7 +293,7 @@ kids.push(eyebrow("06", "Rollout, guardrails, and done"));
 kids.push(p([
   t("Production go-live is "),
   t("blocked", { bold: true }),
-  t(" until the exclusion filter that hides training data from every live surface is built and verified; until then it runs only in DEV/UAT with a dedicated test tenant and test guards. Roll out behind a switch, so it can be enabled gradually and turned off instantly without erasing completed status. It is universal for all guards — no customer-specific setup — and changes no existing templates. Nothing reaches production without Vincent Smeyers’ sign-off."),
+  t(" until the exclusion filter that hides training data from every live surface is built and verified; until then it runs only in DEV/UAT with a dedicated test tenant and test guards. Roll out behind a switch, so it can be enabled gradually and turned off instantly without erasing completed status. It is universal for all guards — no customer-specific setup — and changes no existing templates."),
 ], { after: 60 }));
 kids.push(subhead("DONE MEANS"));
 const done = "done";

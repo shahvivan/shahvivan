@@ -103,7 +103,7 @@ const FR = [
   ["FR-03", "C", "Mandatory", "There is no path to the home screen except by completing it."],
   ["FR-04", "C", "Refresher", "A completed guard can reopen the training; reopening never clears or regresses completion."],
   ["FR-05", "C", "Language", "All onboarding voice and screen copy is English for the MVP."],
-  ["FR-06", "C", "Microphone", "The guard must enable the microphone; declining re-prompts with friendly guidance. If it truly cannot be enabled (broken hardware or device policy), the guard reaches a support screen and is never left trapped on the prompt."],
+  ["FR-06", "C", "Permissions gate", "SAM links the guard directly to SAM OnSite’s permissions in the phone’s settings. The guard enables all of them, returns, and confirms by saying or typing “done”. SAM does not take that on trust: it checks each permission itself, and if any is still off it names which one and links the guard back. Until microphone permission is granted the guard cannot speak to SAM, so the typed or tapped confirmation must work at this point. If a permission genuinely cannot be granted (device policy or hardware), the guard reaches a support screen and is never left trapped."],
   ["FR-07", "P", "Transcription check", "A speaking step is credited only after at least one successful voice transcription; an empty or failed transcription does not advance the step. Steps are judged on the guard demonstrating the intended action and on the resulting report state — semantically-equivalent English is accepted, never an exact phrase."],
   ["FR-08", "P", "Ask a question", "The guard asks SAM a spoken question and SAM answers. This step runs in a practice context and creates no report."],
   ["FR-09", "P", "One practice report", "Reporting the fictional incident creates exactly one practice report. Retries or repeated messages must not create additional reports."],
@@ -118,13 +118,14 @@ const FR = [
   ["FR-18", "P", "Idempotency / concurrency", "One onboarding record and one active practice-report reference per guard. Retries do not duplicate; the newest valid server-side progress wins with no regression; the completion operation is idempotent."],
   ["FR-19", "P", "Privacy / telemetry", "Telemetry records only stage and error codes and completion metrics. It does not keep microphone-permission state beyond need, does not log raw voice/transcript content beyond existing policy, and never routes fictional incident content into operational analytics."],
   ["FR-20", "C", "Deferred visual support", "Extra visual help (tooltips, highlight animations) for dark or noisy sites is deferred; the need is judged during testing, not built for the MVP. (Scope decision — no separate test.)"],
+  ["FR-22", "C", "NFC gate", "After permissions, SAM links the guard to the NFC setting — NFC is what reads the checkpoint tags. The guard switches it on, returns, and says or types “done”. SAM confirms NFC is actually on before continuing, and names it if it is not. Same rule as permissions: the guard’s confirmation is a prompt to check, not proof."],
   ["FR-21", "C", "Tone and engagement", "The experience must feel like receiving a useful new tool, not sitting a test. SAM opens with a warm, personal greeting that names what it does for the guard and why that helps them, frames each step as a benefit, encourages briefly after each success, uses short everyday language, and closes warmly. A dry “do this, then that” sequence does not meet this requirement. See Tone and script for the principles and reference copy."],
 ];
 const AC = [
   ["AC-01", "FR-01", "Given an active guard who has not completed onboarding, when they sign in, then it launches automatically before the home screen is reachable."],
   ["AC-02", "FR-02", "Given an existing guard (account predating this feature) who has not completed it, when they sign in, then they receive it exactly once; after completion a later sign-in goes straight to home."],
   ["AC-03", "FR-03", "Given onboarding in progress, when the guard tries to skip, then there is no path to home except completion (or the minor way out for a real incident)."],
-  ["AC-04", "FR-06", "Given microphone permission denied, when the guard tries to proceed, then SAM re-prompts warmly and speaking steps do not advance; if the mic truly cannot be enabled, the guard reaches a support screen and is not trapped."],
+  ["AC-04", "FR-06", "Given the permissions step, when the guard follows the link, enables the permissions, returns and says or types “done”, then SAM verifies each permission and continues only if all are on; if any is off it names that one and links the guard back. The typed or tapped confirmation works before microphone permission is granted. If a permission cannot be granted at all, the guard reaches a support screen and is not trapped."],
   ["AC-05", "FR-07", "Given a speaking step, when transcription fails or returns empty, then the step is not credited and the guard is asked to try again."],
   ["AC-06", "FR-08 / FR-09", "Given the guard asks a question, then SAM answers and no report is created; given the guard then reports the incident, then exactly one practice report exists (retries add none)."],
   ["AC-07", "FR-10", "Given a practice report naming a Dell, when the guard says to change it to a MacBook, then the same report updates and no second report is created."],
@@ -136,14 +137,15 @@ const AC = [
   ["AC-13", "FR-17", "Given a guard leaves onboarding to report a real incident, then normal reporting opens and, on return, the saved stage resumes with completion neither granted nor skipped."],
   ["AC-14", "FR-05", "Given any onboarding screen or prompt, then all voice and screen copy is in English."],
   ["AC-15", "FR-19", "Given a run, when telemetry and analytics are inspected, then only stage/error codes and completion metrics are recorded, with no raw voice/transcript content and no fictional incident content in operational analytics."],
+  ["AC-17", "FR-22", "Given the NFC step, when the guard enables NFC and says or types “done”, then SAM confirms NFC is on before continuing; if NFC is off, SAM says so and links the guard back rather than advancing."],
   ["AC-16", "FR-21", "Given the full run-through, then it opens with a warm personal greeting, each step is framed as a benefit with a brief encouragement after it, and the close is warm — signed off by product on a read-through, and at least four of five test guards describing it as welcoming rather than test-like. If fewer do, the copy is revised and re-run."],
 ];
 const UAT = [
   ["UAT-01", "AC-01", "New guard’s first sign-in triggers onboarding.", "Shown before home; progress record created."],
   ["UAT-02", "AC-02", "Existing (pre-feature) guard is issued it once.", "Runs once; next sign-in after completion goes to home."],
   ["UAT-03", "AC-03", "Attempt to skip onboarding. (negative)", "No skip path to home; only completion or the real-incident exit."],
-  ["UAT-04", "AC-04", "Deny microphone, then try to continue. (negative)", "Re-prompt with guidance; speaking steps blocked."],
-  ["UAT-05", "AC-04", "Microphone truly unavailable (device policy). (negative)", "Support screen reached; guard not trapped on the prompt."],
+  ["UAT-04", "AC-04", "Complete the permissions step, then repeat with one permission left off. (negative)", "All on: SAM verifies and advances. One off: SAM names that permission and links back, and does not advance."],
+  ["UAT-05", "AC-04", "A permission cannot be granted at all (device policy). (negative)", "Support screen reached; guard not trapped."],
   ["UAT-06", "AC-05", "Force a failed / empty transcription. (negative)", "Step not credited; retry prompted."],
   ["UAT-07", "AC-06", "Ask SAM a question.", "SAM answers; no report created."],
   ["UAT-08", "AC-06", "Report the fictional incident.", "Exactly one practice report exists."],
@@ -160,6 +162,8 @@ const UAT = [
   ["UAT-19", "AC-13", "Leave onboarding to report a real incident, then return.", "Normal reporting opens; returns to saved stage; completion neither granted nor skipped."],
   ["UAT-20", "AC-14", "Review all onboarding copy.", "All copy is English."],
   ["UAT-21", "AC-15", "Inspect telemetry and analytics during a run. (negative)", "Only stage/error + completion metrics; no raw content; no fictional data in analytics."],
+  ["UAT-23", "AC-04", "Confirm the permissions step by typing or tapping, before microphone permission is granted.", "Typed/tapped “done” is accepted; no voice needed at this point."],
+  ["UAT-24", "AC-17", "NFC step with NFC on, then repeated with NFC off. (negative)", "Advances only when NFC is on; when off SAM names it and links back."],
   ["UAT-22", "AC-16", "Full run-through with at least five test guards, reviewing tone.", "Warm personal opening; each step framed as a benefit with brief encouragement; warm close. At least four of five describe it as welcoming, not a test; product signs off the copy."],
 ];
 const TRACE = [
@@ -168,7 +172,8 @@ const TRACE = [
   ["Mandatory", "FR-03", "AC-03", "UAT-03", "No skip path"],
   ["Refresher keeps completion", "FR-04", "AC-11", "UAT-18", "Completion preserved on reopen"],
   ["English MVP", "FR-05", "AC-14", "UAT-20", "All copy English"],
-  ["Mic denied never a dead end", "FR-06", "AC-04", "UAT-04/05", "Re-prompt; support screen; not trapped"],
+  ["Permissions verified, never a dead end", "FR-06", "AC-04", "UAT-04/05/23", "Missing one named; typed confirm works; not trapped"],
+  ["NFC switched on and confirmed", "FR-22", "AC-17", "UAT-24", "Advances only when NFC is actually on"],
   ["Transcription must succeed", "FR-07", "AC-05", "UAT-06", "Failed transcription not credited"],
   ["Ask a question (SAM answers, no report)", "FR-08", "AC-06", "UAT-07", "Answer given; no report"],
   ["One practice report", "FR-09", "AC-06", "UAT-08", "Exactly one report"],
@@ -266,7 +271,8 @@ const flowRef = "flow";
 [
   "The guard signs in; if onboarding is not complete, it opens automatically before the home screen (new and existing guards).",
   "SAM introduces itself with a warm greeting and says plainly what it does for the guard; the screen also makes clear this is short, uses made-up information, and saves progress.",
-  "The guard enables the microphone, framed as SAM wanting to hear them. If declined, SAM re-prompts warmly; if it truly cannot be enabled, the guard reaches a support screen and is not left stuck.",
+  "SAM links the guard to SAM OnSite’s permissions in the phone’s settings; they enable all of them, return, and say or type “done”. SAM verifies each permission itself and names anything still off rather than taking the confirmation on trust.",
+  "SAM repeats the pattern for NFC (which reads the checkpoint tags): a link to the setting, the guard switches it on and returns, says or types “done”, and SAM confirms NFC is actually on before continuing.",
   "The guard asks SAM a practice question and SAM answers, then reassures them they can ask anything — no report is created.",
   "The guard reports “A Dell laptop was stolen.” SAM asks for anything missing and creates one practice report.",
   "The guard says to change “Dell” to “MacBook”; the same report and message update; no second report appears.",
@@ -292,7 +298,8 @@ kids.push(p([chip("P"), t("  Reference copy below — the intended tone, to be p
 kids.push(table([1500, 4074, 4074], ["Stage", "SAM says", "Guard does"], [
   ["Welcome", "“Hello — I’m SAM, your new assistant. From today I do your paperwork, so you can keep your eyes on the site. A few minutes and you’ll know everything you need.”", "Reads; taps Start."],
   ["Practice context", "“Everything here is pretend — nothing you say is filed as a real report, so try things without worrying. I’ll save where you get to.”", "Understands nothing is real."],
-  ["Microphone", "“I work by voice, so I’ll need your microphone — tap allow and we’re off.”", "Grants access (re-prompted, warmly, until granted)."],
+  ["Permissions", "“First, let’s set me up. Tap here, turn on all the permissions for SAM OnSite, then come back and tell me you’re done.” … if one is missing: “Almost — the microphone is still off. Tap here and I’ll wait.”", "Follows the link, enables all, returns, says or types “done”. SAM verifies."],
+  ["NFC", "“One more — tap here to switch on NFC. That’s what reads the checkpoint tags. Tell me when it’s done.”", "Enables NFC, returns, says or types “done”. SAM confirms it is on."],
   ["Ask a question", "“Ask me anything you’d ask a colleague. Try — how do I report an incident?” … “Any time you’re unsure, just ask.”", "Asks; SAM answers. No report created."],
   ["Report", "“Now tell me about an incident the way you’d tell a colleague. Let’s pretend — a Dell laptop was stolen.” … “Done. I wrote that up while you talked.”", "Reports; one practice report is created."],
   ["Voice fix", "“Got a detail wrong? Just say so — tell me to change the Dell to a MacBook.” … “Fixed. No forms, no rewriting.”", "“Change the Dell to a MacBook.” Same report updates."],
@@ -339,7 +346,7 @@ kids.push(p("Completion is recorded only after the system observes each real act
 /* 09 Errors */
 kids.push(eyebrow("09", "Error and recovery behaviour"));
 kids.push(table([3000, 6648], ["Condition", "Behaviour"], [
-  ["Microphone declined or unavailable", "Keep prompting with friendly guidance; a truly blocked mic reaches a support screen so the guard is not trapped. Speaking steps do not advance until the mic is on."],
+  ["A permission or NFC is still off", "SAM names exactly what is missing and links straight back to the setting; it never advances on the guard’s confirmation alone. Anything that genuinely cannot be enabled reaches a support screen so the guard is not trapped."],
   ["Network, speech, or save failure", "Preserve progress; show a retryable error; never silently lose the current step or an edit."],
   ["Voice correction misheard", "SAM re-asks; the guard retries by voice or uses the manual long-press edit."],
   ["Manual save failure", "Show the failure and keep the typed text for retry; the report is never left half-edited."],
