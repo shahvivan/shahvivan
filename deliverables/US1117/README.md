@@ -16,7 +16,18 @@ Builders (Node + `docx`): `build_spec.js` and `build_detailed_spec.js`. Run eith
 The two documents share one visual identity and are kept factually consistent; the detailed spec
 carries FR-01–20 → AC-01–15 → UAT-01–21 with a full traceability matrix behind the brief's claims.
 
-## Latest revision — reviewer feedback incorporated
+## Latest revision — real-interface alignment
+
+The flow was walked through as a first-time guard and aligned with real app screenshots:
+ground rules stated up front; a permissions gate (level-aware — grants have levels — plus
+switching off Android's auto-removal of unused-app permissions) and an NFC gate, both verified
+by SAM rather than trusted; the first Talk press doubles as the microphone check; the practice
+report is shown as a card visibly labelled "Training"; and the ask step promises "nothing live"
+rather than "no record" (today even questions are logged as activities). Named live consumers
+confirmed from real transcripts — supervisor alerts, KPIs, the Pronect Action Tracker — are now
+in the exclusion list.
+
+## Earlier revision — reviewer feedback incorporated
 
 Following Jeroen's review, two changes run through both documents:
 
