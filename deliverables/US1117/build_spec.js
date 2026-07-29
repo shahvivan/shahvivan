@@ -193,29 +193,28 @@ kids.push(gap(70));
 
 /* ---- In one minute ---- */
 kids.push(callout([
-  [t("In one minute.  ", { bold: true, color: TEALD }), t("The first time a guard signs in, SAM introduces itself and shows what it can do. It should feel like unwrapping a good tool, not sitting a test: SAM welcomes them, then walks through the three everyday actions — ask a question, report an incident, fix a report — on a made-up incident so nothing real is affected. It takes a few minutes, saves progress, cannot be skipped, and counts as done only once each step is genuinely done. Practice data must stay out of every live report and dashboard — and because the filter that enforces this is not built yet, it runs in the internal test environments until that is ready. A guard can reopen it later as a refresher.")],
+  [t("In one minute.  ", { bold: true, color: TEALD }), t("The first time a guard signs in, SAM introduces itself and shows what it can do. It should feel like unwrapping a good tool, not sitting a test: SAM welcomes them, then walks through the three everyday actions — ask a question, report an incident, fix a report — on a made-up incident so nothing real is affected. It takes a few minutes, saves progress, cannot be skipped, and counts as done only once each step is genuinely done. Practice data must stay out of every live report and dashboard — and because the filter that enforces this is not built yet, it runs in the internal test environments until that is ready.")],
 ]));
 kids.push(gap(40));
 
 /* ---- 01 How it works ---- */
 kids.push(eyebrow("01", "How it works, step by step"));
 kids.push(p([
-  t("In SAM, a guard’s message is what creates and updates their report — so a report can be fixed by telling SAM out loud or by editing the original message. Both are practised below; quoted lines show the intended tone, not final copy."),
+  t("In SAM, a guard’s message is what creates and updates their report — fix it by voice or by editing the message; both are practised below. Quoted lines show intended tone, not final copy."),
 ], { after: 60 }));
 const flow = "flow";
 [
   "The guard signs in for the first time and SAM opens by itself, before the home screen — for new and existing guards alike.",
-  "SAM introduces itself: “Hello — I’m SAM, your new assistant. From today I do your paperwork, so you can keep your eyes on the site. A few minutes and you’ll know everything you need.”",
-  "SAM gets itself set up: “Tap here, turn on all the permissions for SAM OnSite, then come back and tell me you’re done.” The link opens SAM OnSite’s permissions in the phone’s settings; the guard turns them on, returns, and says or types “done.” SAM checks for itself — naming anything still off and linking back, or confirming and moving on.",
-  "SAM does the same for NFC: “One more — tap here to switch on NFC, that’s what reads the checkpoint tags. Tell me when it’s done.” The guard enables it, returns, says or types “done”, and SAM confirms NFC is on.",
-  "SAM invites a question: “Ask me anything you’d ask a colleague — try, how do I report an incident?” SAM answers, then: “Any time you’re unsure, just ask.” No report is created here.",
-  "SAM moves to the useful part: “Now tell me about an incident the way you’d tell a colleague — let’s pretend a Dell laptop was stolen.” SAM asks for anything missing, writes one practice report, then: “Done. I wrote that up while you talked.”",
-  "SAM shows corrections are easy: “Got a detail wrong? Just say so — tell me to change the Dell to a MacBook.” The same report and the guard’s own message update; no second report appears.",
+  "SAM introduces itself: “Hello, I’m SAM. From today I do the paperwork with you — a few minutes and you’ll know the essentials.” The screen makes three things clear up front: this is required, everything in it is pretend, and progress is saved — leaving and returning resumes where they left off.",
+  "SAM gets itself set up — first permissions, then NFC: “Tap here, turn on everything SAM OnSite needs, then come back and type done.” Each link opens the right place in the phone’s settings (the app’s Permissions page, then the NFC switch that reads checkpoint tags); the guard turns things on, comes back, and says or types “done.” SAM checks each item itself — naming anything wrong and linking back, or moving on.",
+  "SAM invites their first words: “Ask me anything you’d ask a colleague — press Talk and try: how do I report an incident?” SAM answers and confirms it heard them — the first press of Talk doubles as the microphone check — then adds: “Any time you’re unsure, just ask.” Nothing live is created here.",
+  "SAM moves to the useful part: “Now tell me about an incident the way you’d tell a colleague — let’s pretend a Dell laptop was stolen.” SAM asks for anything missing, writes one practice report, and shows it on screen as a card visibly labelled “Training”: “Done. I wrote that up while you talked — have a look.”",
+  "With the report in front of them, SAM shows corrections are easy: “Got a detail wrong? Just say so — tell me to change the Dell to a MacBook.” The same report and the guard’s own message update; no second report appears.",
   "SAM offers the other way: “Prefer to type? Press and hold your message and edit it yourself.” The guard edits it to “A MacBook was stolen at reception,” and the finished report shows both “MacBook” and “reception.”",
-  "SAM closes warmly: “That’s the lot — you know everything you need. I’ll be here whenever you want me, just talk.” Completion is recorded only after SAM has seen each step done for real, and the guard arrives at the home screen.",
+  "SAM closes warmly: “You’re ready — you can ask, report, and fix reports whenever you need me.” Completion is recorded only after SAM has seen each step done for real, and a Go-to-home button lands them on the normal home screen.",
 ].forEach((s) => kids.push(numitem(flow, s)));
 kids.push(new Paragraph({ spacing: { before: 20, after: 40 }, children: [
-  t("Throughout, the practice report carries a training mark from the instant it is created; that mark is what must keep it out of every live report, dashboard, analytics view, export, alert, integration, and the guard’s own activity list.", { size: 18, color: GREY }),
+  t("Throughout, the practice report carries a training mark from the instant it is created — the mark that must keep it out of every live surface.", { size: 18, color: GREY }),
 ] }));
 
 /* ---- 02 Requirements & proof ---- */
@@ -234,11 +233,11 @@ function reqRow(name, key, detail) {
 }
 const REQ = [
   ["Feels like a welcome, not a test", "C", "SAM opens with a warm greeting saying what it does for the guard and why that helps, frames each step as a benefit (“I wrote that up while you talked”), encourages briefly after each, and signs off warmly. Short, friendly, first-person — never a dry list of instructions. Confirmed by a product read-through and by four of five test guards calling it welcoming, not a test."],
-  ["Automatic start & refresher", "C", "It opens by itself the first time a guard signs in, before they can reach the home screen. A guard who has finished can reopen it any time as a refresher without losing their completed status."],
+  ["Automatic start & refresher", "C", "Opens by itself at first sign-in, before the home screen is reachable. A finished guard can reopen it any time as a refresher without losing their completed status."],
   ["Everyone, exactly once", "C", "Every active guard receives it one time — including guards who already had accounts before this feature. After finishing, their next sign-in goes straight to the home screen."],
   ["Cannot be skipped", "C", "There is no way to reach the home screen except by completing it."],
-  ["Permissions and NFC — checked, not assumed", "C", "A link takes the guard straight to SAM OnSite’s permissions in the phone’s settings; they turn everything on, return, and say or type “done.” SAM verifies each one and names anything still off rather than taking their word — then repeats this for NFC, which reads the checkpoint tags. The confirmation must accept typing or tapping, since until the microphone is on the guard cannot speak. Anything that genuinely cannot be enabled routes to support, so they are never trapped."],
-  ["Ask a question (practice only)", "P", "The guard asks a spoken question and SAM answers. Confirmed when SAM answers and no report is created by this step."],
+  ["Permissions and NFC — checked, not assumed", "C", "SAM verifies each permission is at the level the app needs — grants have levels (“only while using”, “ask every time”, location “all the time”) — and names anything wrong rather than taking the guard’s word; the same pattern for NFC. Setup also turns off the phone’s automatic permission removal for unused apps, so access is not silently lost later. The “done” must accept typing, since until the microphone is on the guard cannot speak. What truly cannot be enabled routes to support — never trapped."],
+  ["Ask a question (practice only)", "P", "The guard asks a spoken question and SAM answers. Nothing live may result — today the app logs even questions as activities, so either the practice mode suppresses that record or it carries the training mark like everything else here."],
   ["Report one practice incident", "P", "The guard reports the made-up incident and SAM creates exactly one practice report. Repeats or retries must never create extra reports."],
   ["Fix a report by voice", "C", "The guard tells SAM to change “Dell” to “MacBook”; the same report updates and no duplicate appears. (The exact way the app updates the report is a Check-with-engineering item.)"],
   ["Fix a report by hand", "C", "The guard long-presses their own message, edits it, and saves; the finished report contains both “MacBook” and “reception.” (Whether the app already supports this edit is a Check-with-engineering item.)"],
@@ -268,7 +267,7 @@ kids.push(p([
 /* ---- 04 Unhappy paths ---- */
 kids.push(eyebrow("04", "Handling the unhappy paths"));
 kids.push(table([2500, 7148], ["If this happens", "What the guard experiences"], [
-  ["A permission or NFC is still off", "SAM names exactly what is missing and links straight back to the setting; it does not advance on the guard’s word alone. Anything that genuinely cannot be enabled routes to support so the guard is never stuck."],
+  ["A permission or NFC is still off", "SAM names exactly what is missing and links straight back; it never advances on the guard’s word alone. What truly cannot be enabled routes to support."],
   ["Network, speech, or save fails", "Progress is kept and a clear “try again” is shown; the current step and any edit are never silently lost."],
   ["A spoken correction is misheard", "SAM asks again; the guard can retry by voice or switch to the manual long-press edit instead."],
   ["A manual edit fails to save", "The failure is shown and the guard’s typed text is kept for another try; the report is never left half-changed."],
@@ -277,15 +276,16 @@ kids.push(table([2500, 7148], ["If this happens", "What the guard experiences"],
 
 /* ---- 05 Confirm before building ---- */
 kids.push(eyebrow("05", "Confirm with engineering before building"));
-kids.push(p("A few things depend on how the platform already behaves. They are gathered here so they are settled once, up front. None is expected to be a blocker.", { after: 60 }));
+kids.push(p("These depend on how the platform already behaves — gathered here so they are settled once, up front. None is expected to be a blocker.", { after: 60 }));
 const conf = "conf";
 [
   "Does the app already know when a guard signs in for the first time?",
-  "Can this exercise be launched on its own, without the usual voice or tap triggers that start other scenarios?",
+  "Can this exercise be launched on its own, without the usual triggers that start other scenarios?",
   "Can SAM run in a practice mode whose conversation and report never enter live reporting?",
-  "What is the exact way the app updates an existing report — both when SAM does it by voice and when the guard edits their message by hand?",
-  "The archive / training flag exists — confirm exactly which live feeds, reports, alerts, integrations, and views the new exclusion filter must cover, and where reports are created so the flag is set at creation.",
-  "Is there already a place to store “this guard has completed onboarding,” or does one need to be added?",
+  "How exactly does the app update an existing report — by voice, and by a saved manual edit?",
+  "Which permissions and grant levels does the app need (e.g. location “all the time”), can it read each one to verify, and can it stop the phone’s automatic permission removal? Its Location screen already shows a “Permissions needed” status and a settings link, so the mechanism partly exists.",
+  "The archive / training flag exists — confirm which live surfaces the new exclusion filter must cover, and where reports are created so the flag is set at creation.",
+  "Is there already a place to store a guard’s onboarding completion, or must one be added?",
 ].forEach((s) => kids.push(bullet(conf, s)));
 
 /* ---- 06 Rollout, guardrails & done ---- */
@@ -293,14 +293,14 @@ kids.push(eyebrow("06", "Rollout, guardrails, and done"));
 kids.push(p([
   t("Production go-live is "),
   t("blocked", { bold: true }),
-  t(" until the exclusion filter that hides training data from every live surface is built and verified; until then it runs only in DEV/UAT with a dedicated test tenant and test guards. Roll out behind a switch, so it can be enabled gradually and turned off instantly without erasing completed status. It is universal for all guards — no customer-specific setup — and changes no existing templates."),
+  t(" until the exclusion filter that hides training data from every live surface is built and verified; until then it runs only in DEV/UAT with a dedicated test tenant and test guards. Roll out behind a switch — on gradually, off instantly, never erasing completed status. Universal for all guards, no customer-specific setup, no changes to existing templates."),
 ], { after: 60 }));
 kids.push(subhead("DONE MEANS"));
 const done = "done";
 [
   "A guard — new or existing — is shown the exercise once, completes it by doing the real steps, and lands on the home screen; reopening later keeps their completed status.",
-  "The exclusion filter is built and the practice report is proven absent from every live surface, and a forced hide-failure withholds completion.",
-  "The confirm-with-engineering items are answered, and Vincent Smeyers has signed off.",
+  "The exclusion filter is built, the practice report is proven absent from every live surface, and a forced hide-failure withholds completion.",
+  "The confirm-with-engineering items are answered and Vincent Smeyers has signed off.",
 ].forEach((s) => kids.push(bullet(done, s)));
 
 kids.push(new Paragraph({ spacing: { before: 90 },

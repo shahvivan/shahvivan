@@ -124,16 +124,27 @@ After the first version of both documents was produced, **Jeroen** (engineering 
 
 ---
 
-## 5. THE MVP PRODUCT FLOW (as specified, in both deliverables)
+## 5. THE MVP PRODUCT FLOW (as specified, in both deliverables — revised twice: once for the permissions/NFC setup sequence, once against real app screenshots)
 
-1. Guard signs in. If onboarding isn't complete, it opens automatically before the home screen — for new and existing guards alike.
-2. Welcome screen: explains it's required, fictional, short, and saves progress.
-3. Guard enables the microphone. Declining re-prompts with guidance; if truly unavailable, guard reaches a support screen that still shows the urgent-incident action.
-4. Guard asks SAM a practice question out loud (e.g. "How do I report an incident?"). SAM answers. **No report is created by this step.**
-5. Guard reports a fictional incident ("A Dell laptop was stolen"). SAM asks for anything missing; creates **exactly one** practice report.
-6. Guard says "change Dell to MacBook." The **same** report (and the guard's own message) update; no duplicate is created.
-7. Guard long-presses their own sent message, edits it to "A MacBook was stolen at reception," saves. Final report contains **both** "MacBook" and "reception."
-8. Completion is marked only after every step is genuinely observed — guard reaches the normal home screen. Can reopen later as a refresher without losing completion.
+1. Guard signs in for the first time; SAM opens by itself, before the home screen — new and existing guards alike.
+2. SAM introduces itself warmly ("Hello, I'm SAM. From today I do the paperwork with you…"); the screen states the ground rules up front: required, everything is pretend, progress is saved (leave and return resumes at the same step). A step counter shows progress (detailed doc).
+3. **Permissions gate:** SAM links to SAM OnSite's App-info page in the phone's settings; the guard opens Permissions, enables everything, returns, and **types** "done" (they cannot speak yet — mic not granted). SAM verifies each permission itself — **including its level** — names anything wrong, and links back. Setup also switches off Android's automatic permission removal for unused apps.
+4. **NFC gate:** same pattern — link → enable → return → say/type "done" → SAM confirms NFC (the checkpoint-tag reader) is actually on. (The brief merges steps 3–4 into one step for space; the detailed doc keeps them separate. Same order and behaviour.)
+5. Guard presses Talk and asks a practice question ("How do I report an incident?"); the **first successful transcription doubles as the microphone check**. SAM answers. **Nothing live results** (see 5b — a record may exist today but must be suppressed or training-flagged).
+6. Guard reports the fictional incident ("A Dell laptop was stolen"). SAM asks for missing details, creates **exactly one** practice report, and **shows it on screen as a card visibly labelled "Training."**
+7. With the report in view, guard says "change Dell to MacBook" — same report and message update, no duplicate.
+8. Guard long-presses their own message, edits to "A MacBook was stolen at reception," saves. Final report contains **both** "MacBook" and "reception."
+9. SAM closes warmly ("You're ready — you can ask, report, and fix reports whenever you need me"); completion is marked only after every step is genuinely observed; a Go-to-home button lands the guard on the normal home screen (Talk / Capture / Type). Refresher can be reopened later without losing completion.
+
+### 5b. REAL APP INTERFACE FACTS (from actual screenshots shared in chat — note: an earlier zip of "onboarding screens" was retracted by the user as mockups; the later individual screenshots are the real app and are authoritative)
+
+- The permissions deep link lands on SAM OnSite's **App-info** page; the guard taps **Permissions** there. Current permission set: **camera, location, microphone, notifications, physical activity** — all "not allowed" on a fresh install.
+- **Permissions have levels** ("Allow only while using the app" / "Ask every time" / "Don't allow"; location can be "Allowed all the time"). Verification must check the level, not just on/off — "Ask every time" is not good enough for daily use.
+- Android's **"Manage app if unused"** setting auto-removes camera/location/microphone after months of disuse; setup should switch it off (or the app must detect and re-request).
+- The app's **Location screen already has** a "Permissions needed" status chip, a "Grant permissions" button, and an "Open system settings" link — so permission-state reading and the settings deep link **partly exist already** (proven for location).
+- **Activities have live consequences today**: real transcripts show supervisor alerts being sent, KPI impact, and items created in the **Pronect Action Tracker**. These are named consumers the exclusion filter must cover.
+- **A spoken question was recorded as a "Procedure" activity** ("How do I hand out a key?"). So "asking creates no report" is false as an absolute today — the spec now says **nothing live may result**: practice mode either suppresses the record or training-flags it (FR-08).
+- An activity is a **report card + transcript** (message-is-the-report confirmed). Conversation UI: mic button, "Listening… speak anytime," pause control, keyboard and camera toggles. Home screen: by-name greeting, **Talk / Capture / Type**, recent activity list.
 
 Key mental model, worth repeating to anyone: **in SAM, a guard's message is what creates and updates their report** — so a correction can happen either by telling SAM (voice) or by editing the original message (manual). Both must work and must converge on the same single report.
 
