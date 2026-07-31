@@ -108,7 +108,7 @@ const FR = [
   ["FR-08", "P", "Ask a question", "The guard asks SAM a spoken question and SAM answers. Nothing live may result from this step. Note the current app records even procedure questions as activities (e.g. “How do I hand out a key?” became a Procedure activity), so either the practice context suppresses that record or any record it creates carries the training flag from creation, like the practice report."],
   ["FR-09", "P", "One practice report", "Reporting the fictional incident creates exactly one practice report. Retries or repeated messages must not create additional reports."],
   ["FR-10", "C", "Voice correction", "A spoken correction (Dell → MacBook) updates the same report in place, with no duplicate. (The exact way the app updates the report is an engineering confirmation; see Confirm with engineering.)"],
-  ["FR-11", "C", "Manual correction", "Long-pressing the guard’s own message allows a manual edit that, when saved, updates the same report; the final report contains both “MacBook” and “reception.” (Whether the app already supports this edit is an engineering confirmation.)"],
+  ["FR-11", "C", "Manual correction", "Long-pressing the guard’s own message allows a manual edit that, when saved, updates the same report; the final report contains both “MacBook” and “reception”. (Whether the app already supports this edit is an engineering confirmation.)"],
   ["FR-12", "C", "Marked at creation", "The training / archive flag is set atomically when the report is created, so a report never exists un-marked. If it cannot be created already marked, it is not created at all. The report card the guard sees carries a visible “Training” label, so it is obviously practice."],
   ["FR-13", "C", "Kept out of live surfaces", "The practice report must appear in no live surface (see the Data isolation callout). The platform has the training flag, but the FILTER that excludes marked data is not built yet. Data is currently visible in production, so this exclusion filter is a required, not-yet-built enhancement; production is blocked until it is built and verified, and the exercise runs only in DEV/UAT until then."],
   ["FR-14", "P", "Completion integrity", "Completion is recorded server-side and versioned (version 1), issued once per guard, and set only after each required action is observed. A quiz or an “I’m done” button does not count."],
@@ -122,7 +122,7 @@ const FR = [
   ["FR-22", "C", "NFC gate", "After permissions, SAM links the guard to the NFC setting. NFC reads the checkpoint tags. The guard switches it on, returns, and confirms. Not every site uses NFC, but having it on costs nothing and avoids a failure later, so it is part of setup for everyone."],
   ["FR-23", "C", "Background tracking gate", "The third and last setup gate: background tracking, which lives in SAM OnSite’s own settings screen. Same shape as the other two. SAM explains why it is needed, links straight to the setting from inside onboarding, the guard switches it on and returns to confirm. After this gate every setting the app needs is active and the practice steps can begin."],
   ["FR-24", "X", "Check the settings rather than asking", "For the MVP the guard confirms each gate themselves. Reading the settings back would be materially better: it removes a step where a guard can confirm without having done it, and converts a confusing failure mid-shift into a clear message during onboarding. The Location screen already surfaces a “Permissions needed” status, so this is at least partly achievable today; how far it extends to NFC and background tracking is for engineering to confirm. Treat as the target state, not MVP scope."],
-  ["FR-25", "P", "Tips taught in context", "The practical tips from the train-the-trainer deck are taught inside the practice steps, at the moment each becomes useful, with SAM offering one as an aside or the guard meeting the situation it covers. Listing them on a screen or reading them out in sequence does not count. A slide of tips read aloud does not meet this requirement. Which tips, and where each best fits, to be agreed with product once the slide is shared."],
+  ["FR-25", "P", "Tips taught in context", "The practical tips from the train-the-trainer deck are taught inside the practice steps, at the moment each becomes useful, with SAM offering one as an aside or the guard meeting the situation it covers. A slide of tips listed on a screen or read out in sequence does not meet this requirement. Which tips, and where each best fits, to be agreed with product once the slide is shared."],
 ];
 const AC = [
   ["AC-01", "FR-01", "Given an active guard who has not completed onboarding, when they sign in, then it launches automatically before the home screen is reachable."],
@@ -132,7 +132,7 @@ const AC = [
   ["AC-05", "FR-07", "Given a speaking step, when transcription fails or returns empty, then the step is not credited and the guard is asked to try again."],
   ["AC-06", "FR-08 / FR-09", "Given the guard asks a question, then SAM answers and nothing live results, and any record the platform logs carries the training flag; given the guard then reports the incident, then exactly one practice report exists (retries add none)."],
   ["AC-07", "FR-10", "Given a practice report naming a Dell, when the guard says to change it to a MacBook, then the same report updates and no second report is created."],
-  ["AC-08", "FR-11", "Given the guard long-presses their own message and saves “A MacBook was stolen at reception,” then the final report contains both “MacBook” and “reception.”"],
+  ["AC-08", "FR-11", "Given the guard long-presses their own message and saves “A MacBook was stolen at reception”, then the final report contains both “MacBook” and “reception”."],
   ["AC-09", "FR-12 / FR-13", "Given a practice report at any stage, then it is flagged training at creation; once the exclusion filter is built it appears in no live surface; until the filter exists the exercise runs only in DEV/UAT and does not go to production."],
   ["AC-10", "FR-14 / FR-15", "Given every required action observed and isolation assured, when completion runs, then version 1 is recorded server-side; if isolation cannot be assured, completion is withheld."],
   ["AC-11", "FR-04 / FR-16", "Given a completed guard, when they finish, then they reach home; and reopening the training later preserves completion."],
@@ -156,7 +156,7 @@ const UAT = [
   ["UAT-08", "AC-06", "Report the fictional incident.", "Exactly one practice report exists."],
   ["UAT-09", "AC-07", "Voice-correct Dell to MacBook.", "Same report updated; no duplicate."],
   ["UAT-10", "AC-07", "Voice correction misheard, then retry. (negative)", "SAM re-asks; still exactly one report."],
-  ["UAT-11", "AC-08", "Manual long-press edit and save.", "Final report contains “MacBook” and “reception.”"],
+  ["UAT-11", "AC-08", "Manual long-press edit and save.", "Final report contains “MacBook” and “reception”."],
   ["UAT-12", "AC-08", "Manual save fails, then retry. (negative)", "Error shown; typed text retained; report not half-edited."],
   ["UAT-13", "AC-09", "After the exclusion filter is built, inspect every live surface.", "Absent from all listed consumers; before the filter, run confined to DEV/UAT."],
   ["UAT-14", "AC-09 / AC-10", "Force create-with-flag / isolation failure. (negative)", "Report not created / completion withheld (fail-closed)."],
@@ -236,12 +236,12 @@ kids.push(p([
 const decRef = "dec";
 [
   "It must feel like receiving a useful new tool, not sitting a test. SAM introduces itself and the tone stays warm and encouraging throughout.",
-  "Every guard receives it once, including existing guards; it is mandatory and cannot be skipped.",
-  "“Generate a report” means reporting a fictional incident by talking to SAM. Applies to all guards; configuration is universal, not customer-specific.",
+  "Every guard receives it once, including existing guards. It is mandatory and cannot be skipped.",
+  "“Generate a report” means reporting a fictional incident by talking to SAM. Applies to all guards, with configuration universal rather than customer-specific.",
   "A completed guard can reopen it later as a refresher without losing completion. English for the MVP.",
   "“Editing logs” means editing the guard’s own report, by voice and by long-pressing their message and saving. The final report must reflect the correction.",
   "Completion is inferred from the system observing the guard perform each action, rather than a quiz or a self-confirmation button.",
-  "Enhanced visual support (tooltips, highlights) may be evaluated later; it is not required for the MVP.",
+  "Enhanced visual support (tooltips, highlights) may be evaluated later. It is not required for the MVP.",
 ].forEach((s) => kids.push(bullet(decRef, s)));
 
 /* 02 Scope */
@@ -280,16 +280,16 @@ kids.push(eyebrow("04", "End-to-end flow"));
 kids.push(p([t("Good to know: in SAM, a guard’s message is what creates and updates their report, so a report can be fixed by telling SAM or by editing the original message. Target duration is roughly 3–5 minutes ("), chip("P"), t(" a product estimate, not a measured fact; completion is gated on observed actions, not time).")], { after: 60 }));
 const flowRef = "flow";
 [
-  "The guard signs in; if onboarding is not complete, it opens automatically before the home screen (new and existing guards).",
-  "SAM greets the guard and introduces itself; the screen also makes clear this is required, everything in it is pretend, it is short, and progress is saved, so leaving and returning resumes at the same step. A step counter shows how far along they are.",
+  "The guard signs in. If onboarding is not complete, it opens by itself before the home screen, for new and existing guards alike.",
+  "SAM greets the guard and introduces itself. The screen also makes clear that this is required, that everything in it is pretend, that it is short, and that progress is saved, so leaving and returning resumes at the same step. A step counter shows how far along they are.",
   "First setup gate: permissions. SAM explains the app cannot work without them, then links to SAM OnSite’s settings page, where the guard taps Permissions and enables everything at the level asked for; back in onboarding they type “done”. The link is duplicated into the flow, not a jump to the app’s settings screen, so it offers no way out of a required exercise. Setup also switches off the phone’s automatic permission removal for unused apps, so access is not silently lost after a quiet month.",
-  "Second gate: NFC, which reads the checkpoint tags. a link to the setting, the guard switches it on, returns and confirms. Not every site uses NFC, but turning it on costs nothing and prevents a failure later.",
+  "Second gate: NFC, which reads the checkpoint tags at the gates. Same shape as before. SAM links to the setting, the guard switches it on and comes back to confirm. Not every site uses NFC, but turning it on costs nothing and saves a failure later.",
   "Third gate: background tracking, in SAM OnSite’s own settings screen. Same shape again: link, switch on, return and confirm. With that, every setting the app needs is active and the practice steps can begin.",
-  "The guard presses Talk and asks SAM a practice question; the first successful transcription doubles as the microphone check. SAM answers, then reassures them they can ask anything. Nothing live results; any record the platform logs carries the training flag.",
-  "The guard reports “A Dell laptop was stolen.” SAM asks for anything missing, creates one practice report, and shows it on screen as a card visibly labelled “Training”. Seeing the finished report is what makes the two correction steps meaningful.",
-  "The guard says to change “Dell” to “MacBook”; the same report and message update; no second report appears.",
-  "The guard long-presses their message, edits it to “A MacBook was stolen at reception,” and saves; the final report shows both “MacBook” and “reception.”",
-  "SAM signs off (“You’re ready”) and a Go-to-home button lands the guard on the normal home screen (Talk / Capture / Type). Completion is marked only after each step is observed for real. A completed guard may reopen the training later without losing completion.",
+  "The guard presses Talk and asks SAM a practice question. That first successful transcription doubles as the microphone check. SAM answers, then reassures them they can ask anything at all. Nothing live results, and any record the platform logs carries the training flag.",
+  "Then the practice report itself. Told that a Dell laptop has gone missing, SAM asks for anything still needed, creates exactly one report, and puts it on screen as a card visibly labelled “Training”. Seeing the finished report is what makes the two correction steps mean anything.",
+  "Correction by voice comes first. Asked to change “Dell” to “MacBook”, the same report and the same message update, and no second report appears.",
+  "Then the same fix by hand. The guard long-presses their message, edits it to “A MacBook was stolen at reception” and saves, and the final report shows both “MacBook” and “reception”.",
+  "SAM signs off (“That’s you sorted”) and a Go-to-home button lands the guard on the normal home screen (Talk / Capture / Type). Completion is marked only after each step is observed for real. A completed guard may reopen the training later without losing completion.",
 ].forEach((s) => kids.push(numitem(flowRef, s)));
 
 /* 05 Tone and script */
@@ -301,23 +301,23 @@ kids.push(subhead("HOW IT SHOULD SOUND"));
 const toneRef = "tone";
 [
   "Warm and first-person. SAM introduces itself and says plainly what it does for the guard and why that helps.",
-  "Say what happened in the guard’s terms. “That’s written up” beats “an Activity record has been created”.",
+  "Say what happened in the guard’s terms. “That’s it written up” beats “an Activity record has been created”.",
   "Acknowledge each success in a few words and move on. “Changed. Same report” is enough.",
   "Short lines, everyday words, no system jargon, and no instructions read aloud as a list.",
-  "Sign off plainly and leave the guard knowing what they can now do: “That’s everything. You know how to report now, and how to fix it when it comes out wrong.”",
+  "Sign off plainly and leave the guard knowing what they can now do. “That’s you sorted. You can report now, and you can put it right when I get it wrong.”",
 ].forEach((s) => kids.push(bullet(toneRef, s)));
 kids.push(p([chip("P"), t("  Reference copy below: the intended tone, to be polished with product before build. It is not final wording, and no line here is a locked string.")], { after: 50 }));
 kids.push(table([1500, 4074, 4074], ["Stage", "SAM says", "Guard does"], [
-  ["Welcome", "“Hello, I’m SAM. From today I do the paperwork with you. Five minutes and you’ll know the lot.”", "Reads; taps Start."],
+  ["Welcome", "“Hello, I’m SAM. From today you talk and I write it up. Give me a few minutes and you’ll know everything you need.”", "Reads, then taps Start."],
   ["Practice context", "“Nothing here is real. Nothing you say gets filed. If you have to stop, I’ll remember where you were.”", "Understands nothing is real."],
-  ["Permissions", "“First, permissions. Without them I can’t hear you or see where you are. Tap here, turn them all on, then come back and type done.”", "Follows the link, enables all, returns, types “done”."],
-  ["NFC", "“Next, NFC. That’s what reads the checkpoint tags. Tap here, switch it on, then tell me.”", "Enables NFC, returns, says or types “done”."],
-  ["Background tracking", "“Last one. Background tracking, so I keep working when your screen’s off. Tap here, switch it on, come back. That’s the setup done.”", "Enables background tracking, returns, confirms."],
+  ["Permissions", "“First, permissions. Without them I can’t hear you or see where you are. This link takes you straight there. Turn them all on, come back, and type done.”", "Follows the link, enables all, returns, types “done”."],
+  ["NFC", "“Now NFC. It’s what reads the tags at the checkpoints, so without it your rounds won’t register. Switch it on through here and tell me when you’re back.”", "Enables NFC, returns, says or types “done”."],
+  ["Background tracking", "“Last one, I promise. Background tracking keeps me working when your screen goes dark. Same again, and then we’re set up.”", "Enables background tracking, returns, confirms."],
   ["Ask a question", "“Press Talk and ask me something. Try: how do I report an incident?”", "Presses Talk and asks. The first transcription doubles as the mic check. SAM answers; nothing live results."],
-  ["Report", "“Now report something to me, the way you’d tell a colleague. Say a Dell laptop’s been stolen.” … “That’s written up. Have a look.”", "Reports; one practice report is created and shown on screen."],
-  ["Voice fix", "“If you get something wrong, just tell me. Say: change the Dell to a MacBook.” … “Changed. Same report.”", "“Change the Dell to a MacBook.” Same report updates."],
+  ["Report", "“Now report something to me, the way you’d tell a colleague. Try this one: a Dell laptop’s gone missing from the site office.” … “That’s it written up. Have a look.”", "Reports. One practice report is created and shown on screen."],
+  ["Voice fix", "“If you get something wrong, just tell me. Try: change the Dell to a MacBook.” … “Changed. Same report.”", "“Change the Dell to a MacBook.” Same report updates."],
   ["Manual fix", "“You can also type it. Press and hold your message and add where it happened.”", "Edits message to “…MacBook…at reception” and saves."],
-  ["Finish", "“That’s everything. You know how to report now, and how to fix it when it comes out wrong.”", "Taps Go to home once completion is confirmed."],
+  ["Finish", "“That’s you sorted. You can report now, and you can put it right when I get it wrong.”", "Taps Go to home once completion is confirmed."],
 ]));
 
 /* 06 Functional requirements */
@@ -354,12 +354,12 @@ kids.push(callout([
   "Reports and event pages · dashboards and KPIs · analytics and metrics · exports and scheduled reports · alerts and notifications (including supervisor alerts) · webhooks and integrations · the Pronect Action Tracker · the event outbox and any queue feeding the above · read replicas, caches, and search indexes · the SAM conversation / transcript store · the guard’s own activity list and search. Real transcripts show activities send supervisor alerts, move KPIs, and create Action Tracker items today, and a dispatched alert cannot be recalled, so nothing may be emitted before the training flag is in place.",
 ], TEAL, "Every consumer the exclusion filter must cover"));
 kids.push(subhead("COMPLETION IS SERVER-SIDE, EARNED, AND SAFE UNDER PRESSURE"));
-kids.push(p("Completion is recorded only after the system observes each real action; it lives on the server (never trusted from the phone), is versioned (version 1), issued once per guard, resumes safely across app close or device change, and cannot be duplicated by two concurrent sessions. If practice data cannot be safely isolated at any point, completion is withheld and the guard stays in the exercise. Protecting live data comes before finishing it.", { after: 40 }));
+kids.push(p("Completion is recorded only after the system observes each real action; it lives on the server (never trusted from the phone), is versioned (version 1), issued once per guard, resumes safely across app close or device change, and cannot be duplicated by two concurrent sessions. If practice data cannot be safely isolated at any point, completion is withheld and the guard stays where they are. Keeping live data clean outranks getting anyone finished.", { after: 40 }));
 
 /* 09 Errors */
 kids.push(eyebrow("09", "Error and recovery behaviour"));
 kids.push(table([3000, 6648], ["Condition", "Behaviour"], [
-  ["A setting is still off after the guard confirms", "For the MVP the flow takes the confirmation and moves on, so this surfaces later as a feature that does not work. That is the argument for reading the settings back instead of asking (FR-24). Anything that genuinely cannot be enabled reaches a support screen so the guard is not trapped."],
+  ["A setting is still off after the guard confirms", "For the MVP the flow takes the confirmation and moves on, so this surfaces later as a feature that does not work. This is why reading the settings back would beat asking for them (FR-24). Anything that genuinely cannot be enabled reaches a support screen so the guard is not trapped."],
   ["Network, speech, or save failure", "Preserve progress; show a retryable error; never silently lose the current step or an edit."],
   ["Voice correction misheard", "SAM re-asks; the guard retries by voice or uses the manual long-press edit."],
   ["Manual save failure", "Show the failure and keep the typed text for retry; the report is never left half-edited."],
@@ -414,7 +414,7 @@ const valRef = "val";
   "What is the exact way the app updates an existing report, by voice and by a saved manual edit?",
   "Which live consumers must the new exclusion filter cover (at minimum supervisor alerts, KPIs, and the Pronect Action Tracker, all confirmed live today), and where are reports created so the training flag is set at creation? (The flag exists; the filter does not yet.)",
   "Which permissions and grant levels does the app need (e.g. location “all the time” vs “while using”), can it read each one’s current level to verify it, and can it switch off the phone’s automatic permission removal for unused apps? The app’s Location screen already shows a “Permissions needed” status and an “Open system settings” link, so state-reading and the settings link exist at least for location.",
-  "Is there already a place to store “this guard has completed onboarding,” or must one be added?",
+  "Is there already a place to store “this guard has completed onboarding”, or must one be added?",
 ].forEach((s) => kids.push(bullet(valRef, s)));
 kids.push(gap(10));
 kids.push(callout([
