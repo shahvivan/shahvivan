@@ -103,7 +103,7 @@ const FR = [
   ["FR-03", "C", "Mandatory", "There is no path to the home screen except by completing it."],
   ["FR-04", "C", "Refresher", "A completed guard can reopen the training; reopening never clears or regresses completion."],
   ["FR-05", "C", "Language", "All onboarding voice and screen copy is English for the MVP."],
-  ["FR-06", "C", "Permissions gate", "SAM links the guard to SAM OnSite’s page in the phone’s settings, where they open Permissions and enable everything; back in SAM they type “done”. SAM does not take that on trust: it checks each permission itself — level included, since grants can be “only while using the app”, “ask every time”, or for location “all the time” — and names anything wrong, linking the guard back. On the current interface the set is camera, location, microphone, notifications, and physical activity, all starting “not allowed” on a fresh install. Setup also switches off the phone’s automatic permission removal for unused apps (“Manage app if unused”), which would otherwise silently strip camera, location, and microphone after months of disuse. Until microphone permission is granted the guard cannot speak to SAM, so the typed confirmation must work at this point. If a permission genuinely cannot be granted (device policy or hardware), the guard reaches a support screen and is never left trapped."],
+  ["FR-06", "C", "Permissions gate", "SAM explains that the app needs permissions to work at all, then offers a link that opens SAM OnSite’s settings page, where the guard taps Permissions and enables everything; back in onboarding they confirm. The link is duplicated into the onboarding flow rather than sending the guard to the app’s own settings screen — that would hand them a route out of a required exercise. Guidance must name the level needed, since grants can be “only while using the app”, “ask every time”, or for location “all the time”. On the current interface the set is camera, location, microphone, notifications and physical activity, all starting “not allowed” on a fresh install. Setup should also switch off the phone’s automatic permission removal for unused apps (“Manage app if unused”), which would otherwise silently strip camera, location and microphone after months of disuse. Until microphone permission is granted the guard cannot speak, so the typed confirmation must work here. If a permission genuinely cannot be granted (device policy or hardware), the guard reaches a support screen and is never left trapped."],
   ["FR-07", "P", "Transcription check", "A speaking step is credited only after at least one successful voice transcription; an empty or failed transcription does not advance the step. The guard’s first Talk press — the ask-a-question step — doubles as the microphone check: SAM confirms what it heard before crediting it. Steps are judged on the guard demonstrating the intended action and on the resulting report state — semantically-equivalent English is accepted, never an exact phrase."],
   ["FR-08", "P", "Ask a question", "The guard asks SAM a spoken question and SAM answers. Nothing live may result from this step. Note the current app records even procedure questions as activities (e.g. “How do I hand out a key?” became a Procedure activity), so either the practice context suppresses that record or any record it creates carries the training flag from creation, like the practice report."],
   ["FR-09", "P", "One practice report", "Reporting the fictional incident creates exactly one practice report. Retries or repeated messages must not create additional reports."],
@@ -118,14 +118,17 @@ const FR = [
   ["FR-18", "P", "Idempotency / concurrency", "One onboarding record and one active practice-report reference per guard. Retries do not duplicate; the newest valid server-side progress wins with no regression; the completion operation is idempotent."],
   ["FR-19", "P", "Privacy / telemetry", "Telemetry records only stage and error codes and completion metrics. It does not keep permission or NFC state beyond need, does not log raw voice/transcript content beyond existing policy, and never routes fictional incident content into operational analytics."],
   ["FR-20", "C", "Deferred visual support", "Extra visual help (tooltips, highlight animations) for dark or noisy sites is deferred; the need is judged during testing, not built for the MVP. (Scope decision — no separate test.)"],
+  ["FR-25", "P", "Tips woven in, never recited", "The practical tips from the train-the-trainer deck are taught inside the practice steps, at the moment each becomes useful — SAM offering one as a natural aside, or the guard meeting the situation the tip is about — rather than listed on a screen or read out in sequence. A slide of tips read aloud does not meet this requirement. Which tips, and where each best fits, to be agreed with product once the slide is shared."],
   ["FR-21", "C", "Tone and engagement", "The experience must feel like receiving a useful new tool, not sitting a test. SAM opens with a warm, personal greeting that names what it does for the guard and why that helps them, frames each step as a benefit, encourages briefly after each success, uses short everyday language, and closes warmly. A dry “do this, then that” sequence does not meet this requirement. See Tone and script for the principles and reference copy."],
-  ["FR-22", "C", "NFC gate", "After permissions, SAM links the guard to the NFC setting — NFC is what reads the checkpoint tags. The guard switches it on, returns, and says or types “done”. SAM confirms NFC is actually on before continuing, and names it if it is not. Same rule as permissions: the guard’s confirmation is a prompt to check, not proof."],
+  ["FR-22", "C", "NFC gate", "After permissions, SAM links the guard to the NFC setting — NFC reads the checkpoint tags. The guard switches it on, returns, and confirms. Not every site uses NFC, but having it on costs nothing and avoids a failure later, so it is part of setup for everyone."],
+  ["FR-23", "C", "Background tracking gate", "The third and last setup gate: background tracking, which lives in SAM OnSite’s own settings screen. Same shape as the other two — SAM explains why it is needed, links straight to the setting from inside onboarding, the guard switches it on and returns to confirm. After this gate every setting the app needs is active and the practice steps can begin."],
+  ["FR-24", "X", "Check the settings rather than asking", "For the MVP the guard confirms each gate themselves. Reading the settings back would be materially better: it removes a step where a guard can confirm without having done it, and converts a confusing failure mid-shift into a clear message during onboarding. The Location screen already surfaces a “Permissions needed” status, so this is at least partly achievable today; how far it extends to NFC and background tracking is for engineering to confirm. Treat as the target state, not MVP scope."],
 ];
 const AC = [
   ["AC-01", "FR-01", "Given an active guard who has not completed onboarding, when they sign in, then it launches automatically before the home screen is reachable."],
   ["AC-02", "FR-02", "Given an existing guard (account predating this feature) who has not completed it, when they sign in, then they receive it exactly once; after completion a later sign-in goes straight to home."],
   ["AC-03", "FR-03", "Given onboarding in progress, when the guard tries to skip, then there is no path to home except completion (or the minor way out for a real incident)."],
-  ["AC-04", "FR-06", "Given the permissions step, when the guard follows the link, enables the permissions, returns and types “done”, then SAM verifies each permission — level included — and continues only if all are as the app needs; if any is wrong it names that one and links the guard back. The typed confirmation works before microphone permission is granted. If a permission cannot be granted at all, the guard reaches a support screen and is not trapped."],
+  ["AC-04", "FR-06", "Given the permissions gate, when the guard follows the link, enables the permissions and returns, then they confirm by typing and the flow continues; the link opened from inside onboarding and offered no route into the app itself. The typed confirmation works before microphone permission is granted. If a permission cannot be granted at all, the guard reaches a support screen and is not trapped."],
   ["AC-05", "FR-07", "Given a speaking step, when transcription fails or returns empty, then the step is not credited and the guard is asked to try again."],
   ["AC-06", "FR-08 / FR-09", "Given the guard asks a question, then SAM answers and nothing live results — any record the platform logs carries the training flag; given the guard then reports the incident, then exactly one practice report exists (retries add none)."],
   ["AC-07", "FR-10", "Given a practice report naming a Dell, when the guard says to change it to a MacBook, then the same report updates and no second report is created."],
@@ -138,13 +141,15 @@ const AC = [
   ["AC-14", "FR-05", "Given any onboarding screen or prompt, then all voice and screen copy is in English."],
   ["AC-15", "FR-19", "Given a run, when telemetry and analytics are inspected, then only stage/error codes and completion metrics are recorded, with no raw voice/transcript content and no fictional incident content in operational analytics."],
   ["AC-16", "FR-21", "Given the full run-through, then it opens with a warm personal greeting, each step is framed as a benefit with a brief encouragement after it, and the close is warm — signed off by product on a read-through, and at least four of five test guards describing it as welcoming rather than test-like. If fewer do, the copy is revised and re-run."],
-  ["AC-17", "FR-22", "Given the NFC step, when the guard enables NFC and says or types “done”, then SAM confirms NFC is on before continuing; if NFC is off, SAM says so and links the guard back rather than advancing."],
+  ["AC-17", "FR-22", "Given the NFC gate, when the guard follows the link, switches NFC on and returns, then they confirm and the flow continues to the third gate."],
+  ["AC-18", "FR-23", "Given the background-tracking gate, when the guard follows the link into SAM OnSite’s settings, switches it on and returns, then they confirm and setup is complete — every setting the app needs is now active and the practice steps begin."],
+  ["AC-19", "FR-25", "Given a full run-through, then the tips from the train-the-trainer deck appear inside the practice steps at the moment each is useful, and none is presented as a list or read out in sequence."],
 ];
 const UAT = [
   ["UAT-01", "AC-01", "New guard’s first sign-in triggers onboarding.", "Shown before home; progress record created."],
   ["UAT-02", "AC-02", "Existing (pre-feature) guard is issued it once.", "Runs once; next sign-in after completion goes to home."],
   ["UAT-03", "AC-03", "Attempt to skip onboarding. (negative)", "No skip path to home; only completion or the real-incident exit."],
-  ["UAT-04", "AC-04", "Complete the permissions step, then repeat with one permission left off or set to “Ask every time”. (negative)", "All at the needed level: SAM verifies and advances. Otherwise: SAM names the permission, links back, and does not advance."],
+  ["UAT-04", "AC-04", "Complete the permissions gate on a fresh install, following the link and returning.", "Link opens the app’s settings page from within onboarding; no route into the app itself; confirmation advances the flow."],
   ["UAT-05", "AC-04", "A permission cannot be granted at all (device policy). (negative)", "Support screen reached; guard not trapped."],
   ["UAT-06", "AC-05", "Force a failed / empty transcription at the first speaking step. (negative)", "Step not credited; retry prompted."],
   ["UAT-07", "AC-06", "Ask SAM a question.", "SAM answers; nothing live — any logged record carries the training flag."],
@@ -164,7 +169,9 @@ const UAT = [
   ["UAT-21", "AC-15", "Inspect telemetry and analytics during a run. (negative)", "Only stage/error + completion metrics; no raw content; no fictional data in analytics."],
   ["UAT-22", "AC-16", "Full run-through with at least five test guards, reviewing tone.", "Warm personal opening; each step framed as a benefit with brief encouragement; warm close. At least four of five describe it as welcoming, not a test; product signs off the copy."],
   ["UAT-23", "AC-04", "Confirm the permissions step by typing or tapping, before microphone permission is granted.", "Typed/tapped “done” is accepted; no voice needed at this point."],
-  ["UAT-24", "AC-17", "NFC step with NFC on, then repeated with NFC off. (negative)", "Advances only when NFC is on; when off SAM names it and links back."],
+  ["UAT-24", "AC-17", "NFC gate: follow the link, switch NFC on, return and confirm.", "Link opens the NFC setting; confirmation advances to the background-tracking gate."],
+  ["UAT-25", "AC-18", "Background-tracking gate: follow the link into the app’s settings, switch it on, return and confirm.", "Setup ends with permissions, NFC and background tracking all active; practice steps begin."],
+  ["UAT-26", "AC-19", "Full run-through, reviewing where the train-the-trainer tips appear.", "Each tip lands inside a practice step at a useful moment; none is read out as a list."],
 ];
 const TRACE = [
   ["Auto-launch + refresher", "FR-01", "AC-01", "UAT-01", "Shown before home; refresher reopens"],
@@ -172,8 +179,11 @@ const TRACE = [
   ["Mandatory", "FR-03", "AC-03", "UAT-03", "No skip path"],
   ["Refresher keeps completion", "FR-04", "AC-11", "UAT-18", "Completion preserved on reopen"],
   ["English MVP", "FR-05", "AC-14", "UAT-20", "All copy English"],
-  ["Permissions verified, never a dead end", "FR-06", "AC-04", "UAT-04/05/23", "Missing one named; typed confirm works; not trapped"],
-  ["NFC switched on and confirmed", "FR-22", "AC-17", "UAT-24", "Advances only when NFC is actually on"],
+  ["Permissions gate, never a dead end", "FR-06", "AC-04", "UAT-04/05/23", "Link inside the flow; typed confirm works; not trapped"],
+  ["NFC gate", "FR-22", "AC-17", "UAT-24", "NFC switched on and confirmed"],
+  ["Background-tracking gate", "FR-23", "AC-18", "UAT-25", "All three settings active before practice begins"],
+  ["Check settings rather than ask (target)", "FR-24", "—", "—", "Later stage; feasibility to confirm"],
+  ["Tips woven in, never recited", "FR-25", "AC-19", "UAT-26", "Tips land in context, not as a list"],
   ["Transcription must succeed", "FR-07", "AC-05", "UAT-06", "Failed transcription not credited"],
   ["Ask a question (nothing live)", "FR-08", "AC-06", "UAT-07", "Answer given; nothing live — any record training-flagged"],
   ["One practice report", "FR-09", "AC-06", "UAT-08", "Exactly one report"],
@@ -239,7 +249,8 @@ kids.push(eyebrow("02", "Scope"));
 kids.push(subhead("IN SCOPE"));
 const inRef = "insc";
 [
-  "A universal, application-level onboarding that launches at first sign-in and is reopenable as a refresher.",
+  "A universal, application-level onboarding that launches at first sign-in and is reopenable as a refresher, replacing the app-onboarding steps currently covered in the onboarding presentation.",
+  "Device setup inside the flow: permissions, NFC and background tracking, each reached by a link duplicated into onboarding so the guard is never handed a route out.",
   "One guided pass through: ask a question, report a fictional incident, correct it by voice and by manual edit — delivered in a warm, welcoming tone.",
   "Server-side, versioned completion tracking that issues version 1 exactly once to every active guard.",
   "Isolation of all fictional practice data from every live surface (dependent on the exclusion filter described later).",
@@ -271,8 +282,9 @@ const flowRef = "flow";
 [
   "The guard signs in; if onboarding is not complete, it opens automatically before the home screen (new and existing guards).",
   "SAM greets the guard and introduces itself; the screen also makes clear this is required, everything in it is pretend, it is short, and progress is saved — leaving and returning resumes at the same step. A step counter shows how far along they are.",
-  "SAM links the guard to SAM OnSite’s page in the phone’s settings, where they open Permissions and enable everything at the level the app asks for; back in SAM they type “done”. SAM verifies each permission itself — level included — and names anything wrong rather than taking the confirmation on trust. Setup also switches off the phone’s automatic permission removal for unused apps, so access is not silently lost after a quiet month.",
-  "SAM repeats the pattern for NFC (which reads the checkpoint tags): a link to the setting, the guard switches it on and returns, says or types “done”, and SAM confirms NFC is actually on before continuing.",
+  "First setup gate — permissions. SAM explains the app cannot work without them, then links to SAM OnSite’s settings page, where the guard taps Permissions and enables everything at the level asked for; back in onboarding they type “done”. The link is duplicated into the flow, not a jump to the app’s settings screen, so it offers no way out of a required exercise. Setup also switches off the phone’s automatic permission removal for unused apps, so access is not silently lost after a quiet month.",
+  "Second gate — NFC, which reads the checkpoint tags: a link to the setting, the guard switches it on, returns and confirms. Not every site uses NFC, but turning it on costs nothing and prevents a failure later.",
+  "Third gate — background tracking, in SAM OnSite’s own settings screen: same shape again, link, switch on, return and confirm. With that, every setting the app needs is active and the practice steps can begin.",
   "The guard presses Talk and asks SAM a practice question; the first successful transcription doubles as the microphone check. SAM answers, then reassures them they can ask anything — nothing live results; any record the platform logs carries the training flag.",
   "The guard reports “A Dell laptop was stolen.” SAM asks for anything missing, creates one practice report, and shows it on screen as a card visibly labelled “Training” — seeing the finished report is what makes the two correction steps meaningful.",
   "The guard says to change “Dell” to “MacBook”; the same report and message update; no second report appears.",
@@ -298,8 +310,9 @@ kids.push(p([chip("P"), t("  Reference copy below — the intended tone, to be p
 kids.push(table([1500, 4074, 4074], ["Stage", "SAM says", "Guard does"], [
   ["Welcome", "“Hello, I’m SAM. From today I do the paperwork with you — a few minutes and you’ll know the essentials.”", "Reads; taps Start."],
   ["Practice context", "“Everything here is pretend — nothing you say is filed as a real report, so try things without worrying. I’ll save where you get to.”", "Understands nothing is real."],
-  ["Permissions", "“First, let’s set me up. Tap here, turn on all the permissions for SAM OnSite, then come back and tell me you’re done.” … if one is missing: “Almost — the microphone is still off. Tap here and I’ll wait.”", "Follows the link, enables all, returns, says or types “done”. SAM verifies."],
-  ["NFC", "“One more — tap here to switch on NFC. That’s what reads the checkpoint tags. Tell me when it’s done.”", "Enables NFC, returns, says or types “done”. SAM confirms it is on."],
+  ["Permissions", "“First, let’s switch me on properly — I can’t do much without a few permissions. Tap here, turn them all on, then come back and type done.”", "Follows the link, enables all, returns, types “done”."],
+  ["NFC", "“Next, NFC — that’s what reads the checkpoint tags. Tap here, switch it on, and tell me when it’s done.”", "Enables NFC, returns, says or types “done”."],
+  ["Background tracking", "“Last one — background tracking, so I keep working when your screen is off. Tap here, switch it on, then come back. That’s everything set up.”", "Enables background tracking, returns, confirms."],
   ["Ask a question", "“Ask me anything you’d ask a colleague — press Talk and try: how do I report an incident?” … “Any time you’re unsure, just ask.”", "Presses Talk and asks — the first transcription doubles as the mic check. SAM answers; nothing live results."],
   ["Report", "“Now tell me about an incident the way you’d tell a colleague. Let’s pretend — a Dell laptop was stolen.” … “Done. I wrote that up while you talked — have a look.”", "Reports; one practice report is created and shown on screen."],
   ["Voice fix", "“Got a detail wrong? Just say so — tell me to change the Dell to a MacBook.” … “Fixed. No forms, no rewriting.”", "“Change the Dell to a MacBook.” Same report updates."],
@@ -346,7 +359,7 @@ kids.push(p("Completion is recorded only after the system observes each real act
 /* 09 Errors */
 kids.push(eyebrow("09", "Error and recovery behaviour"));
 kids.push(table([3000, 6648], ["Condition", "Behaviour"], [
-  ["A permission or NFC is still off", "SAM names exactly what is missing and links straight back to the setting; it never advances on the guard’s confirmation alone. Anything that genuinely cannot be enabled reaches a support screen so the guard is not trapped."],
+  ["A setting is still off after the guard confirms", "For the MVP the flow takes the confirmation and moves on, so this surfaces later as a feature that does not work — which is the argument for reading the settings back instead of asking (FR-24). Anything that genuinely cannot be enabled reaches a support screen so the guard is not trapped."],
   ["Network, speech, or save failure", "Preserve progress; show a retryable error; never silently lose the current step or an edit."],
   ["Voice correction misheard", "SAM re-asks; the guard retries by voice or uses the manual long-press edit."],
   ["Manual save failure", "Show the failure and keep the typed text for retry; the report is never left half-edited."],
