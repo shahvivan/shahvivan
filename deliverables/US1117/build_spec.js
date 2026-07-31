@@ -268,7 +268,7 @@ kids.push(p([
 /* ---- 04 Unhappy paths ---- */
 kids.push(eyebrow("04", "Handling the unhappy paths"));
 kids.push(table([2500, 7148], ["If this happens", "What the guard experiences"], [
-  ["A permission or NFC is still off", "SAM names exactly what is missing and links straight back; it never advances on the guard’s word alone. What truly cannot be enabled routes to support."],
+  ["A setting is still off after the guard confirms", "For the MVP SAM takes the confirmation and moves on, so a missed setting surfaces later as something that does not work — the reason for wanting SAM to read the settings back instead of asking. What truly cannot be enabled routes to support."],
   ["Network, speech, or save fails", "Progress is kept and a clear “try again” is shown; the current step and any edit are never silently lost."],
   ["A spoken correction is misheard", "SAM asks again; the guard can retry by voice or switch to the manual long-press edit instead."],
   ["A manual edit fails to save", "The failure is shown and the guard’s typed text is kept for another try; the report is never left half-changed."],
