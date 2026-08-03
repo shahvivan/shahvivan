@@ -9,9 +9,9 @@ Hi Jeroen,
 
 Thanks, useful feedback. Both documents attached: a short one for you and Vincent, a longer one with the requirements and tests for engineering.
 
-It's all in. Three things I did differently, which I'd rather flag than have you find. Permissions are checked rather than asked, since the Location screen already reads permission state. The urgent-incident exit stays, because walking the flow as a guard it's the only way out of something that can't be skipped. And device readiness is part of "done" now, which the spec never actually said.
+It's all in. Two things I did differently, which I'd rather flag than have you find. The urgent-incident exit stays, because walking the flow as a guard it's the only way out of something that can't be skipped. And device readiness is part of "done" now, which the spec never actually said.
 
-One question. The app can already tell whether permissions have been granted, so onboarding checks that itself instead of taking the guard's word for it. Can it tell the same way whether NFC and background tracking are switched on? If it can, all three gates get checked and nobody finishes onboarding with a setting still off.
+One question, and it's the one you raised. Right now all three gates work by asking the guard to confirm they've switched something on, which means someone can tap Done without having done it and nobody finds out until the app fails on them weeks later. Can the app read whether any of these are actually on, so it checks instead of asks? I couldn't establish that from anything I had. Whichever of the three turn out to be checkable should be in the build.
 
 Worth a look. The spec guarded against practice data reaching live operations, but not the reverse. A guard half a minute into "this is how you report things" has something real happen, presses Talk, and the training flag hides it from their supervisor. That's a requirement now, and the refresher keeps it live after go-live.
 
