@@ -11,7 +11,7 @@ Thanks, useful feedback. Both documents attached: a short one for you and Vincen
 
 It's all in. Three things I did differently, which I'd rather flag than have you find. Permissions are checked rather than asked, since the Location screen already reads permission state. The urgent-incident exit stays, because walking the flow as a guard it's the only way out of something that can't be skipped. And device readiness is part of "done" now, which the spec never actually said.
 
-My question: permission state is readable. Can NFC and background tracking be read the same way? If so, all three gates verify instead of asking.
+One question. The app can already tell whether permissions have been granted, so onboarding checks that itself instead of taking the guard's word for it. Can it tell the same way whether NFC and background tracking are switched on? If it can, all three gates get checked and nobody finishes onboarding with a setting still off.
 
 Worth a look. The spec guarded against practice data reaching live operations, but not the reverse. A guard half a minute into "this is how you report things" has something real happen, presses Talk, and the training flag hides it from their supervisor. That's a requirement now, and the refresher keeps it live after go-live.
 
