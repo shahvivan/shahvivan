@@ -194,7 +194,7 @@ kids.push(gap(70));
 
 /* ---- In one minute ---- */
 kids.push(callout([
-  [t("In one minute.  ", { bold: true, color: TEALD }), t("At first sign-in SAM introduces itself, gets the phone set up (permissions, NFC, background tracking) and teaches three actions — ask, report, correct — on a made-up incident. Mandatory, saves progress, complete only when each step is genuinely done. It replaces the deck’s app-setup slides and absorbs its tips; installation and log-in stay with the trainer. Practice data must stay out of every live surface, and the filter that enforces that is not built, so this runs in DEV/UAT until it is.")],
+  [t("In one minute.  ", { bold: true, color: TEALD }), t("At first sign-in SAM introduces itself, gets the phone set up (location, NFC, background tracking) and teaches three actions — ask, report, correct — on a made-up incident. Mandatory, saves progress, complete only when each step is genuinely done. It replaces the deck’s app-setup slides and absorbs its tips. Practice data must stay out of every live surface, and the filter that enforces that is not built, so this runs in DEV/UAT until it is.")],
 ]));
 kids.push(gap(40));
 
@@ -207,7 +207,7 @@ const flow = "flow";
 [
   "The guard signs in for the first time. SAM opens by itself, before the home screen, for new and existing guards alike.",
   "SAM opens with “Hello. I am SAM, your new assistant. From today you talk, and I write the report for you.” It says it can be taught the words the guard uses, and sets the ground rules: this is required, nothing in it counts, progress is saved.",
-  "Next, three setup gates: location, NFC (which reads the checkpoint tags), then background tracking, which lives in SAM OnSite’s own settings. Each has the same shape: SAM says what it needs and why, links to that setting from inside onboarding, and the guard switches it on and returns to confirm. Microphone and camera are not gated — Android prompts for them when first used. Granting can close the app; the guard reopens it and resumes at the same gate.",
+  "Next, three setup gates: location, NFC (which reads the checkpoint tags), then background tracking, which lives in SAM OnSite’s own settings. Each has the same shape: SAM says what it needs and why, links to that setting, and the guard switches it on and returns to confirm. Microphone and camera are not gated — Android prompts for them when first used. Granting can close the app; the guard reopens it and resumes at the same gate.",
   "Only now does the guard speak. SAM asks them to press Talk, wait for the microphone to turn green, and ask how to report an incident. That first press doubles as the microphone check. Nothing live is created here.",
   "Then the practice report. SAM asks for it the way the guard would tell a colleague and offers one to use: a Dell laptop is missing. SAM writes one report and puts it on screen as a card labelled “Training”.",
   "With the report in front of them, the guard corrects it by hand first: they press and hold their own report message, which SAM marks on screen, add that it happened at reception, and save.",
@@ -244,7 +244,7 @@ const REQ = [
   ["Fix a report by voice", "C", "The guard tells SAM it was a MacBook and the same report updates. Confirmed on the real app: no second report is created, and the report always takes the state of the most recent message, which is why the voice fix runs last."],
   ["Fix a report by hand", "C", "SAM names the change and points at the right message; the guard presses and holds their report, adds the location, and saves. The finished report ends up with both “MacBook” and “reception” in it. Confirmed on the real app."],
   ["Marked as training at creation", "C", "Every practice report carries the training flag from the moment it is created, using the platform’s archive / soft-delete flag. If it cannot be created already marked, it is not created at all. Whether the flag can be set atomically at creation is for engineering."],
-  ["Kept out of every live surface", "C", "The practice report must appear in no live surface. Four are confirmed: supervisor alerts, KPI and dashboard figures, the Pronect Action Tracker, and the guard’s own activity list. Reports, exports, integrations and the stores behind them are the likely rest and are listed for engineering. The filter that excludes training-flagged data does not exist yet, which is why archived data is still visible in production. It must be built and verified before go-live; until then this stays in DEV/UAT."],
+  ["Kept out of every live surface", "C", "The practice report must appear in no live surface. Four are confirmed: supervisor alerts, KPI and dashboard figures, the Pronect Action Tracker, and the guard’s own activity list. Reports, exports, integrations and the stores behind them are the likely rest, listed for engineering. The filter that excludes training-flagged data does not exist yet, which is why archived data is still visible in production. It must be built and verified before go-live; until then this stays in DEV/UAT."],
   ["Check the settings each session", "C", "Guards share handsets, so the phone being ready cannot be recorded against the guard. Instead of tracking which phone is set up, the three settings are checked again when a guard starts a session, and anything off is walked through. A check that passes costs seconds and needs no per-phone record."],
   ["Finishing means the phone works too", "P", "Completion requires both halves: the three actions done for real, and the device set up. The app can see a permission that is off and will not advance past it. Three it cannot read — location at “allow all the time”, background activity, physical activity — are guided, trusted, and re-checked next session."],
   ["Finishing is earned & remembered", "P", "Recorded only after SAM sees each step done for real. A quiz or an “I’m done” button does not count. Held on the server, issued once per guard, surviving a closed app or a change of handset."],
@@ -262,7 +262,7 @@ kids.push(p([
   t("The catch:", { bold: true }),
   t(" nothing acts on that flag yet, and archived items still show in production. The exclusion has to be written first, into "),
   t("the reporting layer", { bold: true }),
-  t(", which is where the product owner has said the exclusion belongs. Until it is built this stays in DEV/UAT, and switching it on in production later must be gated on the filter by something firmer than memory: a dispatched alert cannot be recalled."),
+  t(", where the product owner has said it belongs. Until it is built this stays in DEV/UAT. Switching it on in production later must be gated on the filter by something firmer than memory: a dispatched alert cannot be recalled."),
 ]));
 kids.push(subhead("THE RISK THAT RUNS THE OTHER WAY"));
 kids.push(p([
