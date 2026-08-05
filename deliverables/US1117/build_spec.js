@@ -192,7 +192,7 @@ kids.push(new Table({
 kids.push(gap(60));
 
 kids.push(callout([
-  [t("In one minute.  ", { bold: true, color: TEALD }), t("At first sign-in SAM introduces itself, sets the phone up (location, NFC, background tracking) and teaches three actions — ask, report, correct — on a made-up incident. Roughly three to five minutes, mandatory, saves progress, done only when each step is genuinely done. It replaces the deck’s app-setup slides and absorbs its tips. Practice data must stay out of every live surface; the filter that enforces that is not built, so this runs in DEV/UAT until it is.")],
+  [t("In one minute.  ", { bold: true, color: TEALD }), t("At first sign-in SAM introduces itself, sets the phone up (location, NFC, background tracking) and teaches three actions — ask, report, correct — on a made-up incident. Roughly three to five minutes, mandatory, saves progress, done only when each step is genuinely done. It replaces the deck’s app-setup slides and absorbs its tips. Practice data must stay out of every live surface; the filter that enforces that is not built, so this runs in DEV/UAT — the internal test systems — until it is.")],
 ]));
 kids.push(gap(30));
 
@@ -239,14 +239,14 @@ kids.push(table([2340, 7308], ["Requirement", "What it means"], REQ.map((r) => r
 kids.push(eyebrow("03", "What must not go wrong"));
 kids.push(subhead("PRACTICE DATA REACHING LIVE OPERATIONS"));
 kids.push(p([
-  t("A pretend stolen laptop must never pull a real supervisor out of bed. The report is flagged at creation, but nothing acts on that flag yet and archived items still show in production. The exclusion has to be written into "),
+  t("A pretend stolen laptop must never wake a real supervisor. Practice reports are flagged the moment they are created, but nothing acts on that flag yet, so archived items still show in production. The filter has to be built into "),
   t("the reporting layer", { bold: true }),
-  t(" first. That work sits outside this specification and is not scoped here, and it sets the go-live date. Until it exists this stays in DEV/UAT. Turning it on in production later should be enforced by a server-side check that refuses to start onboarding when the filter is absent, since a dispatched alert cannot be recalled. Practice records are hidden, not deleted; clearing them is a separate database task with no date."),
+  t(" first. That work is not scoped here and it sets the go-live date. Until then this stays in DEV/UAT, and a check on the server should refuse to start onboarding without the filter, because a dispatched alert cannot be recalled. Flagged records are hidden, not deleted; clearing them is a separate job with no date."),
 ]));
 kids.push(subhead("THE RISK THAT RUNS THE OTHER WAY"));
-kids.push(p("A real incident reported during practice would be flagged training and hidden from the supervisor it should reach. The MVP answer is cheap: a practice banner on every step, carrying the way out to normal reporting."));
+kids.push(p("Something real happens while the guard is practising. They report it, and the training flag hides it from the supervisor who needed it. The fix is cheap: a practice banner on every step, with the way out to normal reporting on it."));
 kids.push(subhead("A GUARD STUCK ON SHIFT"));
-kids.push(p("Failures keep progress and offer a retry; three failed spoken attempts offer typing; a guard who still cannot proceed reaches the home screen with completion unmarked. Being un-onboarded is a reporting problem. Being locked out on shift is a safety one.", { after: 30 }));
+kids.push(p("A failure keeps progress and offers a retry. Three failed spoken attempts offer typing. A guard who still cannot get past a step reaches the home screen anyway, with completion unmarked. Being un-onboarded is a reporting problem; being locked out mid-shift is a safety one.", { after: 30 }));
 
 /* ---- 04 Open questions ---- */
 kids.push(eyebrow("04", "Answers still needed"));
