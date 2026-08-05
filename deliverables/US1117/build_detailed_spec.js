@@ -315,7 +315,7 @@ kids.push(table([2600, 2400, 4648], ["Field", "Example", "Purpose"], [
 kids.push(eyebrow("06", "Practice data isolation"));
 kids.push(callout([
   [t("Every practice report carries the training flag from creation. "), t("The dependency:", { bold: true }),
-   t(" the filter that keeps marked data out of live surfaces is not built, and archived items are still visible in production. It must be built and verified before go-live; until then this runs only in DEV/UAT. Built once, hide-by-default at the shared data layer, every surface inherits it.")],
+   t(" the filter that keeps marked data out of live surfaces is not built, and archived items are still visible in production. It must be built and verified before go-live; until then this runs only in DEV/UAT. The product owner has named where it belongs: the reporting layer must be updated to exclude this data. Permanent deletion is a separate database clean-up at a later stage.")],
 ], TEAL, "PRACTICE DATA MUST NEVER REACH LIVE OPERATIONS"));
 kids.push(p("Surfaces the filter must cover. The first four are confirmed from real transcripts and app screens; the rest are the likely set and must be confirmed with engineering.", { before: 60, after: 50 }));
 const consRef = "cons";

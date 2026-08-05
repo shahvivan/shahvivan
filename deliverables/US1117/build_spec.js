@@ -260,9 +260,9 @@ kids.push(subhead("PRACTICE DATA MUST NEVER REACH LIVE OPERATIONS"));
 kids.push(p([
   t("A pretend stolen laptop must never pull a real supervisor out of bed. The practice report is stamped with the training flag at creation. "),
   t("The catch:", { bold: true }),
-  t(" nothing acts on that flag yet, and archived items still show in production. The filter must be written first, "),
-  t("hide-by-default", { bold: true }),
-  t(" and low down where the data is read, so every screen inherits it. Until then this stays in DEV/UAT, and switching it on in production later must be gated on the filter by something firmer than memory: a dispatched alert cannot be recalled."),
+  t(" nothing acts on that flag yet, and archived items still show in production. The exclusion has to be written first, into "),
+  t("the reporting layer", { bold: true }),
+  t(", which is where the product owner has said the exclusion belongs. Until it is built this stays in DEV/UAT, and switching it on in production later must be gated on the filter by something firmer than memory: a dispatched alert cannot be recalled."),
 ]));
 kids.push(subhead("THE RISK THAT RUNS THE OTHER WAY"));
 kids.push(p([
