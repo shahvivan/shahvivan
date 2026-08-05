@@ -192,7 +192,7 @@ kids.push(new Table({
 kids.push(gap(60));
 
 kids.push(callout([
-  [t("In one minute.  ", { bold: true, color: TEALD }), t("At first sign-in SAM introduces itself, sets the phone up (location, NFC, background tracking) and teaches three actions — ask, report, correct — on a made-up incident. Mandatory, saves progress, done only when each step is genuinely done. It replaces the deck’s app-setup slides and absorbs its tips. Practice data must stay out of every live surface; the filter that enforces that is not built, so this runs in DEV/UAT until it is.")],
+  [t("In one minute.  ", { bold: true, color: TEALD }), t("At first sign-in SAM introduces itself, sets the phone up (location, NFC, background tracking) and teaches three actions — ask, report, correct — on a made-up incident. Roughly three to five minutes, mandatory, saves progress, done only when each step is genuinely done. It replaces the deck’s app-setup slides and absorbs its tips. Practice data must stay out of every live surface; the filter that enforces that is not built, so this runs in DEV/UAT until it is.")],
 ]));
 kids.push(gap(30));
 
@@ -205,13 +205,10 @@ const flow = "flow";
   "Three setup gates: location, NFC, then background tracking, which sits in SAM OnSite’s own settings. SAM says what it needs and why, links straight to the setting, and the guard switches it on and returns. Microphone and camera are not gated; Android prompts for those when first used. Granting can close the app, and the flow resumes at the same gate.",
   "Only now does the guard speak. They press Talk, wait for the green microphone, and ask how to report an incident. That first press doubles as the microphone check. Nothing live is created.",
   "The practice report. SAM asks for it the way the guard would tell a colleague and offers one: a Dell laptop is missing. One report is written and shown as a card labelled “Training”.",
-  "The guard fixes it by hand: press and hold their own report message, which SAM marks on screen, add that it happened at reception, save.",
-  "Then by voice: they say what the item actually was, and the same report updates. Voice runs last, because the report takes the state of the most recent message.",
-  "SAM signs off, names the settings now on so a miss can be caught, and a button lands the guard on the home screen. Completion is recorded only after each step is seen done.",
+  "The guard fixes it by hand: press and hold their own report message, which SAM marks on screen, and edit it.",
+  "Then by voice: the same report updates. Voice runs last, because the report takes the state of the most recent message.",
+  "SAM signs off, names the settings now on so a miss can be caught, and a button lands the guard on the home screen.",
 ].forEach((s) => kids.push(numitem(flow, s)));
-kids.push(new Paragraph({ spacing: { before: 20, after: 30 }, children: [
-  t("A guard’s message is what creates and updates their report, which is why it can be fixed either way. Throughout, the practice report carries the training flag from the instant it is created.", { size: 18, color: GREY }),
-] }));
 
 /* ---- 02 Requirements ---- */
 kids.push(eyebrow("02", "What must be true"));
@@ -228,14 +225,14 @@ function reqRow(name, key, detail) {
 }
 const REQ = [
   ["Feels like a welcome, not a test", "C", "SAM introduces itself as the guard’s new assistant and frames each step as a benefit. Nothing reads as instructions. Signed off by product, and tested with guards before release."],
-  ["Set up the phone", "C", "Location, NFC, background tracking, in that order. Microphone and camera are not gated: Android prompts for those when first used, so SAM only warns the guard to expect it. Location is gated because the app asks for it but not at “allow all the time”, and cannot read that level back, so SAM walks the guard to the second Android screen and names the setting."],
-  ["Checked again each session", "C", "Guards share handsets, so a set-up phone cannot be recorded against a guard. The three settings are checked again whenever a guard starts a session, and anything off is walked through. A check that passes costs seconds and needs no per-phone record."],
+  ["Set up the phone", "C", "Location, NFC, background tracking, in that order. Microphone and camera are not gated: Android prompts for those when first used, so SAM only warns the guard to expect it. Location is gated because the app asks for it but not at “allow all the time”, so SAM walks the guard to the second Android screen and names the setting."],
+  ["Checked again each session", "C", "Guards share handsets, so a set-up phone cannot be recorded against a guard. The three settings are checked again whenever a guard starts a session. The app can read most permission states and will not advance past one that is off. Three it cannot read — location at “allow all the time”, background activity, physical activity — are guided and then taken on the guard’s word, so a miss there lasts until the next session catches it."],
   ["Marked as training at creation", "C", "Every practice report carries the training flag from the moment it is created, using the platform’s archive flag. If it cannot be created already marked, it is not created at all."],
-  ["Kept out of every live surface", "C", "Confirmed consumers: supervisor alerts, KPIs and dashboards, the Pronect Action Tracker, and the guard’s own activity list. The filter that excludes flagged data does not exist, which is why archived data is still visible in production. It must be built and verified before go-live."],
+  ["Kept out of every live surface", "C", "Four consumers are confirmed: supervisor alerts, KPIs and dashboards, the Pronect Action Tracker, and the guard’s own activity list. Reports, exports, integrations, and the queues, caches and transcript stores behind them are the likely rest and are not yet enumerated. The filter itself does not exist, which is why archived data is still visible in production."],
   ["Nothing may trap a guard", "P", "There is no way to the home screen except finishing, apart from four exits: a real incident, a guard stuck on a step, no connectivity at sign-in, and leaving a refresher when already complete. None marks the guard complete. The real-incident exit must offer typed reporting before the microphone exists, or it is unusable where it matters most."],
   ["Finishing is earned", "P", "Recorded only after each step is seen done. A quiz or an “I’m done” button does not count. Held on the server, issued once per guard, surviving a closed app or a change of handset."],
-  ["Tips taught in context", "C", "All eight tips from the deck’s General recommendations slide sit inside SAM’s spoken lines, at the step where each becomes useful. Two are practised rather than told: press-and-hold to fix a mistake is the manual-fix step, and full sentences is what the report prompt asks for."],
-  ["Say what is tracked", "X", "Guards are asked for location and background tracking on a work phone and will ask what is done with it. One plain line belongs in the flow, and the wording must come from Pronect. What a supervisor sees is not ours to state, and this document does not state it."],
+  ["Tips taught in context", "C", "All eight tips from the deck’s General recommendations slide sit inside SAM’s spoken lines, at the step where each becomes useful. Two are practised rather than told, by making the guard do the thing the tip describes."],
+  ["Say what is tracked", "X", "Guards are asked for location and background tracking on a work phone and will ask what is done with it. One plain line belongs in the flow. The wording must come from Pronect and, where required, be agreed with the works council. What a supervisor sees is not ours to state, and this document does not state it."],
 ];
 kids.push(table([2340, 7308], ["Requirement", "What it means"], REQ.map((r) => reqRow(r[0], r[1], r[2]))));
 
@@ -245,7 +242,7 @@ kids.push(subhead("PRACTICE DATA REACHING LIVE OPERATIONS"));
 kids.push(p([
   t("A pretend stolen laptop must never pull a real supervisor out of bed. The report is flagged at creation, but nothing acts on that flag yet and archived items still show in production. The exclusion has to be written into "),
   t("the reporting layer", { bold: true }),
-  t(" first. Until it is built and verified this stays in DEV/UAT, and turning it on in production later must be gated on the filter by something firmer than memory: a dispatched alert cannot be recalled."),
+  t(" first. That work sits outside this specification and is not scoped here, and it sets the go-live date. Until it exists this stays in DEV/UAT. Turning it on in production later should be enforced by a server-side check that refuses to start onboarding when the filter is absent, since a dispatched alert cannot be recalled. Practice records are hidden, not deleted; clearing them is a separate database task with no date."),
 ]));
 kids.push(subhead("THE RISK THAT RUNS THE OTHER WAY"));
 kids.push(p("A real incident reported during practice would be flagged training and hidden from the supervisor it should reach. The MVP answer is cheap: a practice banner on every step, carrying the way out to normal reporting."));
@@ -254,20 +251,20 @@ kids.push(p("Failures keep progress and offer a retry; three failed spoken attem
 
 /* ---- 04 Open questions ---- */
 kids.push(eyebrow("04", "Answers still needed"));
-kids.push(p("None looks like a blocker.", { after: 50 }));
+kids.push(p("Only the first can still change the design.", { after: 50 }));
 const conf = "conf";
 [
   "Does SAM need the notifications permission, and does it prompt for itself like the microphone and camera?",
   "What is the physical activity permission for, and does SAM need it at all?",
   "Can the app read whether NFC is on, and whether the handset has an NFC chip?",
   "Can setup stop the phone removing permissions from unused apps?",
-  "Can the practice question be kept out of the activity table entirely? It writes a row today.",
+  "The practice question writes an activity row today and must be suppressed entirely. Can the platform do that?",
   "Which live surfaces must the exclusion filter cover, and where are reports created so the flag is set there?",
 ].forEach((s) => kids.push(bullet(conf, s)));
 
 /* ---- 05 Rollout & done ---- */
 kids.push(eyebrow("05", "Rollout and done"));
-kids.push(p("Go-live is blocked until the exclusion filter is built and verified; until then, DEV/UAT only, with a test tenant and test guards. Behind a switch: on gradually, off instantly, never erasing a completed status. Universal for all guards, no customer-specific setup, no template changes.", { after: 50 }));
+kids.push(p("Go-live is blocked until the exclusion filter is built and verified; until then, DEV/UAT only, with a test tenant and test guards. Behind a switch: on gradually, off instantly, never erasing a completed status. Universal for all guards, no customer-specific setup, no template changes. Trainers are still needed for install and first log-in, and as the fallback for a guard who cannot get past a step.", { after: 50 }));
 const done = "done";
 [
   "Every guard completes it once by doing the real steps and ends with a set-up phone.",
