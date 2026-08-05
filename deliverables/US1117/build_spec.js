@@ -168,7 +168,7 @@ kids.push(new Paragraph({ spacing: { after: 16 },
   children: [t("PRONECT   ·   SAM ONSITE", { size: 16, bold: true, color: TEAL, cs: 40 })] }));
 kids.push(new Paragraph({ spacing: { after: 20 },
   children: [new TextRun({ text: "Guard Onboarding", font: SERIF, size: 46, bold: true, color: INK })] }));
-kids.push(new Paragraph({ spacing: { after: 140 },
+kids.push(new Paragraph({ spacing: { after: 120 },
   border: { bottom: { color: TEAL, style: BorderStyle.SINGLE, size: 4, space: 10 } },
   children: [new TextRun({ text: "Mandatory first-login voice training — MVP specification", font: SERIF, size: 21, italics: true, color: GREY })] }));
 
@@ -178,53 +178,48 @@ kids.push(new Table({
   rows: [new TableRow({ children: [new TableCell({
     width: { size: CONTENT_W, type: WidthType.DXA },
     shading: { type: ShadingType.CLEAR, color: "auto", fill: BOX },
-    margins: { top: 100, bottom: 100, left: 180, right: 180 }, borders: { top: NONE, bottom: NONE, left: NONE, right: NONE },
+    margins: { top: 90, bottom: 90, left: 180, right: 180 }, borders: { top: NONE, bottom: NONE, left: NONE, right: NONE },
     children: [new Paragraph({ spacing: { after: 0 }, children: [
-      t("Product  ", { size: 16, bold: true, color: TEAL, cs: 4 }), t("SAM OnSite       ", { size: 18 }),
       t("Applies to  ", { size: 16, bold: true, color: TEAL, cs: 4 }), t("Every guard, once       ", { size: 18 }),
       t("Language  ", { size: 16, bold: true, color: TEAL, cs: 4 }), t("English       ", { size: 18 }),
       t("Status  ", { size: 16, bold: true, color: TEAL, cs: 4 }), t("Draft for build       ", { size: 18 }),
       t("Sign-off  ", { size: 16, bold: true, color: TEAL, cs: 4 }), t("Vincent Smeyers", { size: 18 }),
     ] }),
-    new Paragraph({ spacing: { before: 60, after: 0 }, children: [
-      t("Full requirements, acceptance criteria and tests are in the companion document.", { size: 16, it: true, color: GREY })] })],
+    new Paragraph({ spacing: { before: 50, after: 0 }, children: [
+      t("Requirements, acceptance criteria and tests are in the companion.", { size: 16, it: true, color: GREY })] })],
   })] })],
 }));
-kids.push(gap(70));
+kids.push(gap(60));
 
-/* ---- In one minute ---- */
 kids.push(callout([
-  [t("In one minute.  ", { bold: true, color: TEALD }), t("At first sign-in SAM introduces itself, gets the phone set up (location, NFC, background tracking) and teaches three actions — ask, report, correct — on a made-up incident. Mandatory, saves progress, complete only when each step is genuinely done. It replaces the deck’s app-setup slides and absorbs its tips. Practice data must stay out of every live surface, and the filter that enforces that is not built, so this runs in DEV/UAT until it is.")],
+  [t("In one minute.  ", { bold: true, color: TEALD }), t("At first sign-in SAM introduces itself, sets the phone up (location, NFC, background tracking) and teaches three actions — ask, report, correct — on a made-up incident. Mandatory, saves progress, done only when each step is genuinely done. It replaces the deck’s app-setup slides and absorbs its tips. Practice data must stay out of every live surface; the filter that enforces that is not built, so this runs in DEV/UAT until it is.")],
 ]));
-kids.push(gap(40));
+kids.push(gap(30));
 
 /* ---- 01 How it works ---- */
-kids.push(eyebrow("01", "How it works, step by step"));
-kids.push(p([
-  t("In SAM, a guard’s message is what creates and updates their report, so a report is fixed either by voice or by editing the message. Both are practised below."),
-], { after: 60 }));
+kids.push(eyebrow("01", "How it works"));
 const flow = "flow";
 [
-  "The guard signs in for the first time. SAM opens by itself, before the home screen, for new and existing guards alike.",
-  "SAM opens with “Hello. I am SAM, your new assistant. From today you talk, and I write the report for you.” It says it can be taught the words the guard uses, and sets the ground rules: this is required, nothing in it counts, progress is saved.",
-  "Next, three setup gates: location, NFC (which reads the checkpoint tags), then background tracking, which lives in SAM OnSite’s own settings. Each has the same shape: SAM says what it needs and why, links to that setting, and the guard switches it on and returns to confirm. Microphone and camera are not gated — Android prompts for them when first used. Granting can close the app; the guard reopens it and resumes at the same gate.",
-  "Only now does the guard speak. SAM asks them to press Talk, wait for the microphone to turn green, and ask how to report an incident. That first press doubles as the microphone check. Nothing live is created here.",
-  "Then the practice report. SAM asks for it the way the guard would tell a colleague and offers one to use: a Dell laptop is missing. SAM writes one report and puts it on screen as a card labelled “Training”.",
-  "With the report in front of them, the guard corrects it by hand first: they press and hold their own report message, which SAM marks on screen, add that it happened at reception, and save.",
-  "Then by voice: the guard says what the item actually was, and the same report updates with no duplicate. Voice runs last so no later edit can overwrite it.",
-  "SAM signs off, names the settings now switched on so a guard who missed one can catch it, and a Go-to-home button lands on the normal home screen. Completion is recorded only after each step has been seen done for real.",
+  "The guard signs in. SAM opens by itself, before the home screen, for new and existing guards alike.",
+  "SAM introduces itself as the guard’s new assistant, says it can be taught the words they use, and sets the ground rules: required, nothing counts, progress saved.",
+  "Three setup gates: location, NFC, then background tracking, which sits in SAM OnSite’s own settings. SAM says what it needs and why, links straight to the setting, and the guard switches it on and returns. Microphone and camera are not gated; Android prompts for those when first used. Granting can close the app, and the flow resumes at the same gate.",
+  "Only now does the guard speak. They press Talk, wait for the green microphone, and ask how to report an incident. That first press doubles as the microphone check. Nothing live is created.",
+  "The practice report. SAM asks for it the way the guard would tell a colleague and offers one: a Dell laptop is missing. One report is written and shown as a card labelled “Training”.",
+  "The guard fixes it by hand: press and hold their own report message, which SAM marks on screen, add that it happened at reception, save.",
+  "Then by voice: they say what the item actually was, and the same report updates. Voice runs last, because the report takes the state of the most recent message.",
+  "SAM signs off, names the settings now on so a miss can be caught, and a button lands the guard on the home screen. Completion is recorded only after each step is seen done.",
 ].forEach((s) => kids.push(numitem(flow, s)));
-kids.push(new Paragraph({ spacing: { before: 20, after: 40 }, children: [
-  t("Throughout, the practice report carries the training flag from the instant it is created. That flag is what must keep it out of every live surface.", { size: 18, color: GREY }),
+kids.push(new Paragraph({ spacing: { before: 20, after: 30 }, children: [
+  t("A guard’s message is what creates and updates their report, which is why it can be fixed either way. Throughout, the practice report carries the training flag from the instant it is created.", { size: 18, color: GREY }),
 ] }));
 
 /* ---- 02 Requirements ---- */
-kids.push(eyebrow("02", "What must be true, and how we confirm it"));
+kids.push(eyebrow("02", "What must be true"));
 kids.push(p([
-  statusChip("C"), t("  an agreed behaviour.   ", { size: 16, color: GREY }),
-  statusChip("P"), t("  our recommended default.   ", { size: 16, color: GREY }),
-  statusChip("X"), t("  needs an engineering confirmation (listed in section 04).", { size: 16, color: GREY }),
-], { after: 70 }));
+  statusChip("C"), t("  agreed.   ", { size: 16, color: GREY }),
+  statusChip("P"), t("  our recommendation.   ", { size: 16, color: GREY }),
+  statusChip("X"), t("  needs an answer (section 04).", { size: 16, color: GREY }),
+], { after: 60 }));
 
 function reqRow(name, key, detail) {
   const left = [new Paragraph({ spacing: { after: 30 }, children: [t(name, { size: 18, bold: true })] }),
@@ -232,81 +227,57 @@ function reqRow(name, key, detail) {
   return [cell(left, { w: 2340, va: VerticalAlign.TOP }), cell([new Paragraph({ spacing: { after: 0, line: 244, lineRule: "auto" }, children: [t(detail, { size: 18 })] })], { w: 7308, va: VerticalAlign.TOP })];
 }
 const REQ = [
-  ["Feels like a welcome, not a test", "C", "SAM introduces itself as the guard’s new assistant and frames each step as a benefit. None of it reads as instructions. Signed off by product on a read-through, and tested with guards before release."],
-  ["Automatic start & refresher", "C", "Opens by itself at first sign-in, before the home screen is reachable. A finished guard can reopen it any time without losing their completed status."],
-  ["Everyone, exactly once", "C", "Every active guard receives it one time, including guards who already had accounts. After finishing, their next sign-in goes straight to the home screen."],
-  ["Cannot be skipped", "C", "No path to the home screen except completing it, other than four defined exits: a real incident, a guard who cannot get past a step, a guard signing in with no connectivity, and leaving a refresher when already complete. None marks the guard complete."],
-  ["Set up the phone: location, NFC, background tracking", "C", "Three gates. The microphone and camera are not among them: Android prompts for those when first used, so SAM just warns the guard to expect it. Location is gated because the app asks for it but not at “allow all the time”, and cannot read that level back, so SAM walks the guard to the second Android screen and names the setting. Granting can close the app; the flow resumes at the same gate."],
-  ["A phone with no NFC chip", "X", "The NFC gate is skipped instead of routing the guard to support over hardware they do not have. Whether the app can detect the chip, or read whether NFC is on, is still open."],
-  ["Granting permissions may close the app", "C", "Granting permissions often restarts the app. Confirmed that the flow resumes where it left off, but the guard has to be told that before they leave for the settings, or they will not know to come back."],
-  ["Ask a question (practice only)", "P", "The guard asks a spoken question and SAM answers. Nothing live may result, so the practice context must suppress the activity record the app writes today. The answer to the suggested question is written in advance."],
-  ["Report one practice incident", "P", "The guard reports the made-up incident and SAM creates exactly one practice report. Repeats or retries must never create extra reports. Follow-up questions are capped and “I don’t know” always advances."],
-  ["Fix a report by voice", "C", "The guard tells SAM it was a MacBook and the same report updates. Confirmed on the real app: no second report is created, and the report always takes the state of the most recent message, which is why the voice fix runs last."],
-  ["Fix a report by hand", "C", "SAM names the change and points at the right message; the guard presses and holds their report, adds the location, and saves. The finished report ends up with both “MacBook” and “reception” in it. Confirmed on the real app."],
-  ["Marked as training at creation", "C", "Every practice report carries the training flag from the moment it is created, using the platform’s archive / soft-delete flag. If it cannot be created already marked, it is not created at all. Whether the flag can be set atomically at creation is for engineering."],
-  ["Kept out of every live surface", "C", "The practice report must appear in no live surface. Four are confirmed: supervisor alerts, KPI and dashboard figures, the Pronect Action Tracker, and the guard’s own activity list. Reports, exports, integrations and the stores behind them are the likely rest, listed for engineering. The filter that excludes training-flagged data does not exist yet, which is why archived data is still visible in production. It must be built and verified before go-live; until then this stays in DEV/UAT."],
-  ["Check the settings each session", "C", "Guards share handsets, so the phone being ready cannot be recorded against the guard. Instead of tracking which phone is set up, the three settings are checked again when a guard starts a session, and anything off is walked through. A check that passes costs seconds and needs no per-phone record."],
-  ["Finishing means the phone works too", "P", "Completion requires both halves: the three actions done for real, and the device set up. The app can see a permission that is off and will not advance past it. Three it cannot read — location at “allow all the time”, background activity, physical activity — are guided, trusted, and re-checked next session."],
-  ["Finishing is earned & remembered", "P", "Recorded only after SAM sees each step done for real. A quiz or an “I’m done” button does not count. Held on the server, issued once per guard, surviving a closed app or a change of handset."],
-  ["Tips taught in context", "C", "All eight tips from the deck’s General recommendations slide are inside SAM’s spoken lines, at the step where each becomes useful. Two are practised rather than told: pressing and holding text to fix a mistake is the manual-fix step, and speaking in full sentences is what the report prompt asks for."],
-  ["Say what is tracked", "X", "Guards are asked for location and background tracking on a work phone and will ask what is done with it. One plain line belongs in the flow. The wording must come from Pronect. What a supervisor sees is not ours to state, and this document does not state it."],
-  ["A way out for a real incident", "P", "Leave onboarding, report a real incident, return to the saved stage, with completion neither granted nor skipped. Reachable from every step. Crossing it must be unmistakable: the banner clears and the guard is told this one is live. Before the microphone exists it must offer typed reporting or say to call it in, or it is unusable exactly where it is most needed."],
+  ["Feels like a welcome, not a test", "C", "SAM introduces itself as the guard’s new assistant and frames each step as a benefit. Nothing reads as instructions. Signed off by product, and tested with guards before release."],
+  ["Set up the phone", "C", "Location, NFC, background tracking, in that order. Microphone and camera are not gated: Android prompts for those when first used, so SAM only warns the guard to expect it. Location is gated because the app asks for it but not at “allow all the time”, and cannot read that level back, so SAM walks the guard to the second Android screen and names the setting."],
+  ["Checked again each session", "C", "Guards share handsets, so a set-up phone cannot be recorded against a guard. The three settings are checked again whenever a guard starts a session, and anything off is walked through. A check that passes costs seconds and needs no per-phone record."],
+  ["Marked as training at creation", "C", "Every practice report carries the training flag from the moment it is created, using the platform’s archive flag. If it cannot be created already marked, it is not created at all."],
+  ["Kept out of every live surface", "C", "Confirmed consumers: supervisor alerts, KPIs and dashboards, the Pronect Action Tracker, and the guard’s own activity list. The filter that excludes flagged data does not exist, which is why archived data is still visible in production. It must be built and verified before go-live."],
+  ["Nothing may trap a guard", "P", "There is no way to the home screen except finishing, apart from four exits: a real incident, a guard stuck on a step, no connectivity at sign-in, and leaving a refresher when already complete. None marks the guard complete. The real-incident exit must offer typed reporting before the microphone exists, or it is unusable where it matters most."],
+  ["Finishing is earned", "P", "Recorded only after each step is seen done. A quiz or an “I’m done” button does not count. Held on the server, issued once per guard, surviving a closed app or a change of handset."],
+  ["Tips taught in context", "C", "All eight tips from the deck’s General recommendations slide sit inside SAM’s spoken lines, at the step where each becomes useful. Two are practised rather than told: press-and-hold to fix a mistake is the manual-fix step, and full sentences is what the report prompt asks for."],
+  ["Say what is tracked", "X", "Guards are asked for location and background tracking on a work phone and will ask what is done with it. One plain line belongs in the flow, and the wording must come from Pronect. What a supervisor sees is not ours to state, and this document does not state it."],
 ];
-kids.push(table([2340, 7308], ["Requirement", "What it means and how we confirm it"], REQ.map((r) => reqRow(r[0], r[1], r[2]))));
+kids.push(table([2340, 7308], ["Requirement", "What it means"], REQ.map((r) => reqRow(r[0], r[1], r[2]))));
 
 /* ---- 03 What must not go wrong ---- */
 kids.push(eyebrow("03", "What must not go wrong"));
-kids.push(subhead("PRACTICE DATA MUST NEVER REACH LIVE OPERATIONS"));
+kids.push(subhead("PRACTICE DATA REACHING LIVE OPERATIONS"));
 kids.push(p([
-  t("A pretend stolen laptop must never pull a real supervisor out of bed. The practice report is stamped with the training flag at creation. "),
-  t("The catch:", { bold: true }),
-  t(" nothing acts on that flag yet, and archived items still show in production. The exclusion has to be written first, into "),
+  t("A pretend stolen laptop must never pull a real supervisor out of bed. The report is flagged at creation, but nothing acts on that flag yet and archived items still show in production. The exclusion has to be written into "),
   t("the reporting layer", { bold: true }),
-  t(", where the product owner has said it belongs. Until it is built this stays in DEV/UAT. Switching it on in production later must be gated on the filter by something firmer than memory: a dispatched alert cannot be recalled."),
+  t(" first. Until it is built and verified this stays in DEV/UAT, and turning it on in production later must be gated on the filter by something firmer than memory: a dispatched alert cannot be recalled."),
 ]));
 kids.push(subhead("THE RISK THAT RUNS THE OTHER WAY"));
-kids.push(p([
-  t("A real incident reported during practice would be flagged training and hidden from the supervisor it should reach. For the MVP the answer is cheap: a practice banner on every step, carrying the way out to normal reporting. Detection of what the guard actually said is deliberately deferred."),
-]));
-kids.push(subhead("NOTHING MAY LEAVE A GUARD STUCK ON SHIFT"));
-kids.push(p([
-  t("Failures preserve progress and offer a retry. Three failed spoken attempts offer typing. A guard who still cannot proceed reaches the home screen with completion unmarked, because being un-onboarded is a reporting problem and being locked out on shift is a safety one. A missed setting is the one gap the MVP accepts, except the microphone, which fails visibly at the first Talk press."),
-], { after: 40 }));
+kids.push(p("A real incident reported during practice would be flagged training and hidden from the supervisor it should reach. The MVP answer is cheap: a practice banner on every step, carrying the way out to normal reporting."));
+kids.push(subhead("A GUARD STUCK ON SHIFT"));
+kids.push(p("Failures keep progress and offer a retry; three failed spoken attempts offer typing; a guard who still cannot proceed reaches the home screen with completion unmarked. Being un-onboarded is a reporting problem. Being locked out on shift is a safety one.", { after: 30 }));
 
-/* ---- 04 Confirm before building ---- */
-kids.push(eyebrow("04", "Confirm with engineering before building"));
-kids.push(p("None of these looks like a blocker.", { after: 60 }));
+/* ---- 04 Open questions ---- */
+kids.push(eyebrow("04", "Answers still needed"));
+kids.push(p("None looks like a blocker.", { after: 50 }));
 const conf = "conf";
 [
-  "Can it be launched on its own, outside whatever normally starts a scenario?",
-  "Is there a practice mode in which neither the conversation nor the report enters live reporting?",
   "Does SAM need the notifications permission, and does it prompt for itself like the microphone and camera?",
-  "Can the app read whether NFC is on, and whether the handset has an NFC chip at all?",
-  "What is the physical activity permission for, and does SAM need it?",
-  "Which permissions and grant levels does the app need, can setup stop the phone’s automatic permission removal for unused apps, and does granting permissions always require a restart?",
-  "Which live surfaces must the exclusion filter cover, and where are reports created so the training flag is set there?",
-  "Is there already a place to store a guard’s onboarding completion, or must one be added?",
+  "What is the physical activity permission for, and does SAM need it at all?",
+  "Can the app read whether NFC is on, and whether the handset has an NFC chip?",
+  "Can setup stop the phone removing permissions from unused apps?",
+  "Can the practice question be kept out of the activity table entirely? It writes a row today.",
+  "Which live surfaces must the exclusion filter cover, and where are reports created so the flag is set there?",
 ].forEach((s) => kids.push(bullet(conf, s)));
 
-/* ---- 05 Rollout, guardrails & done ---- */
-kids.push(eyebrow("05", "Rollout, guardrails, and done"));
-kids.push(p([
-  t("Production go-live is "),
-  t("blocked", { bold: true }),
-  t(" until the exclusion filter is built and verified; until then it runs only in DEV/UAT with a dedicated test tenant and test guards. Roll out behind a switch: on gradually, off instantly, and never erasing anyone’s completed status. Universal for all guards, no customer-specific setup, no changes to existing templates."),
-], { after: 60 }));
-kids.push(subhead("DONE MEANS"));
+/* ---- 05 Rollout & done ---- */
+kids.push(eyebrow("05", "Rollout and done"));
+kids.push(p("Go-live is blocked until the exclusion filter is built and verified; until then, DEV/UAT only, with a test tenant and test guards. Behind a switch: on gradually, off instantly, never erasing a completed status. Universal for all guards, no customer-specific setup, no template changes.", { after: 50 }));
 const done = "done";
 [
-  "Every guard, new or existing, completes it once by doing the real steps and ends with a set-up phone; the refresher preserves completion.",
-  "The exclusion filter is built, the practice report is proven absent from every live surface, and a forced hide-failure withholds completion.",
-  "The confirm-with-engineering items are answered and Vincent Smeyers has signed off.",
+  "Every guard completes it once by doing the real steps and ends with a set-up phone.",
+  "The practice report is proven absent from every live surface, and a forced hide-failure withholds completion.",
+  "The open questions are answered and Vincent Smeyers has signed off.",
 ].forEach((s) => kids.push(bullet(done, s)));
 
-kids.push(new Paragraph({ spacing: { before: 90 },
+kids.push(new Paragraph({ spacing: { before: 80 },
   border: { top: { color: RULE, style: BorderStyle.SINGLE, size: 5, space: 5 } },
   children: [t("Internal build and testing only. No production change until Vincent Smeyers has signed off.", { size: 16, it: true, color: GREY })] }));
-
 /* ================= NUMBERING ================= */
 const numbering = { config: [] };
 ["conf", "done"].forEach((reference) => numbering.config.push({
