@@ -201,11 +201,11 @@ kids.push(eyebrow("01", "How it works"));
 const flow = "flow";
 [
   "The guard signs in. SAM opens by itself, before the home screen, for new and existing guards alike.",
-  "SAM introduces itself as the guard’s new assistant, says it can be taught the words they use, and sets the ground rules: required, nothing counts, progress saved.",
-  "Three setup gates: location, NFC, then background tracking, which sits in SAM OnSite’s own settings. SAM says what it needs and why, links straight to the setting, and the guard switches it on and returns. Microphone and camera are not gated; Android prompts for those when first used. Granting can close the app, and the flow resumes at the same gate.",
-  "Only now does the guard speak. They press Talk, wait for the green microphone, and ask how to report an incident. That first press doubles as the microphone check. Nothing live is created.",
-  "The practice report. SAM asks for it the way the guard would tell a colleague and offers one: a Dell laptop is missing. One report is written and shown as a card labelled “Training”.",
-  "The guard fixes it by hand: press and hold their own report message, which SAM marks on screen, and edit it.",
+  "SAM introduces itself as the guard’s new assistant, says it can be taught the words they use, and sets the ground rules: required, nothing counts, progress saved. “Hi, I’m SAM, your guarding assistant. Any question about patrols, procedures or reporting, talk about it here with me.”",
+  "Three setup gates, each reached by a link in the chat: location (set to Allow all the time in settings), NFC, then background tracking, which sits in SAM OnSite’s own settings. SAM says what it needs and why, links straight to the setting, and the guard switches it on and returns. Microphone and camera are not gated; Android prompts for those when first used. Once everything is enabled the guard has to be guided back: restart the app and open the existing chat rather than start a new one, or a Continue onboarding button sits in the open space until onboarding is marked done. A new chat cannot be started before onboarding is complete, except under the urgency override.",
+  "Only now does the guard speak. SAM OnSite tells the guard to press Talk, wait for the microphone, and ask how to report an incident. That first press doubles as the microphone check. Nothing live is created.",
+  "The practice report. SAM asks for it the way the guard would tell a colleague and offers one: a Dell laptop is missing. One report is written.",
+  "The guard is told to fix it by hand: press and hold their own report message, which SAM marks on screen, and edit it.",
   "Then by voice: the same report updates. Voice runs last, because the report takes the state of the most recent message.",
   "SAM signs off, names the settings now on so a miss can be caught, and a button lands the guard on the home screen.",
 ].forEach((s) => kids.push(numitem(flow, s)));
@@ -232,7 +232,6 @@ const REQ = [
   ["Nothing may trap a guard", "P", "There is no way to the home screen except finishing, apart from four exits: a real incident, a guard stuck on a step, no connectivity at sign-in, and leaving a refresher when already complete. None marks the guard complete. The real-incident exit must offer typed reporting before the microphone exists, or it is unusable where it matters most."],
   ["Finishing is earned", "P", "Recorded only after each step is seen done. A quiz or an “I’m done” button does not count. Held on the server, issued once per guard, surviving a closed app or a change of handset."],
   ["Tips taught in context", "C", "All eight tips from the deck’s General recommendations slide sit inside SAM’s spoken lines, at the step where each becomes useful. Two are practised rather than told, by making the guard do the thing the tip describes."],
-  ["Say what is tracked", "X", "Guards are asked for location and background tracking on a work phone and will ask what is done with it. One plain line belongs in the flow. The wording must come from Pronect and, where required, be agreed with the works council. What a supervisor sees is not ours to state, and this document does not state it."],
 ];
 kids.push(table([2340, 7308], ["Requirement", "What it means"], REQ.map((r) => reqRow(r[0], r[1], r[2]))));
 

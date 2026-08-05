@@ -128,7 +128,7 @@ const FR = [
   ["FR-28", "P", "Retry floor and release", "After three failed attempts at a spoken step, typing is offered. On any step, a guard who is stuck can say so and reach the home screen with completion unmarked and the stage saved; the release must not depend on a failure counter, since a guard who cannot find the message to long-press never generates a failed attempt. If the server cannot be reached at sign-in, the guard passes through rather than being held. A released guard must not be dropped back onto the same step at every subsequent sign-in: the release carries a cool-down or routes them to a trainer, and re-entry is through FR-04."],
   ["FR-29", "P", "A real incident reported inside practice", "A practice banner stays visible for the whole exercise and not only on the finished report card, and it carries the way out to normal reporting (FR-17). A genuine incident reported during practice would be flagged training and hidden from the supervisors it should have reached. Detecting that what the guard said is not the practice incident is the better answer and is outside MVP scope. The banner cannot be shown while the guard is inside the phone’s settings, so the claim is that it is visible at every step of the flow itself."],
   ["FR-30", "P", "Go-live gate on the filter", "The MVP is built and tested in DEV/UAT only. Before the switch is enabled in production the exclusion filter must be present and verified, enforced by something firmer than memory. The recommended enforcement is a server-side capability check that refuses to start onboarding when the filter is absent. It is work at go-live, outside this MVP, and is not scoped here."],
-  ["FR-31", "X", "Say what is tracked", "Guards are asked for location and background tracking on a work phone and will ask what is done with it, so one plain line belongs in the flow. The wording must be supplied by Pronect and, where required, agreed with the works council. This specification does not state what a supervisor can or cannot see; that boundary is not ours to draw."],
+  ["FR-31", "C", "One chat until onboarding is done", "Setup sends the guard out to Android settings and the app may restart, so the flow has to hold the way back. The guard is guided to reopen SAM OnSite and continue the existing chat rather than start a new one, and a Continue onboarding button stays in the open space until onboarding is marked done. Starting a new chat is blocked until then, with one exception: the urgency override, which is the real-incident exit (FR-17). Without this a guard restarts, opens a fresh chat, and the flow is lost with no way back into it."],
   ["FR-32", "C", "Check the three settings at the start of a session", "Guards share phones, each with their own login, so the phone being ready cannot be recorded against the guard. Rather than tracking which handset is set up, the three settings are simply checked again when a guard starts a session, whatever phone they are holding, and the guard is walked through anything that is off. Repeating a check that passes costs seconds and needs no per-device record. This is what makes the promise hold on a shared handset."],
 ];
 const AC = [
@@ -154,7 +154,7 @@ const AC = [
   ["AC-20", "FR-28", "Given three failed attempts at a spoken step, then typing is offered; given a guard stuck on any step who asks to leave, then they reach the home screen with completion unmarked and the stage saved, and are not dropped back onto that step at the next sign-in; given no connectivity at sign-in, then the guard passes through."],
   ["AC-21", "FR-29", "Given a practice run, then a practice banner is visible at every step of the flow and carries the way out to normal reporting."],
   ["AC-22", "FR-30", "Given production go-live, then the exclusion filter is present and verified before the switch is enabled, and its absence blocks onboarding from starting."],
-  ["AC-23", "FR-31", "Given the setup gates, then a line supplied by Pronect states what location and background tracking are used for. No statement about what a supervisor can or cannot see originates in this specification."],
+  ["AC-23", "FR-31", "Given onboarding is not complete, when the guard tries to start a new chat, then it is blocked and they are returned to the existing one, except through the urgency override; and given the app has restarted, then a Continue onboarding button is present in the open space."],
   ["AC-24", "FR-32", "Given a guard who completed the gates on one device and resumes or signs in on another, then the three gates are replayed on the new device before the flow continues; given an already-completed guard on an unrecognised device, then the gates run alone and completion is unaffected."],
 ];
 const UAT = [
@@ -175,6 +175,7 @@ const UAT = [
   ["UAT-15", "AC-09 / AC-10", "Force create-with-flag / isolation failure. (negative)", "Report not created; completion withheld (fail-closed)."],
   ["UAT-16", "AC-10 / AC-11", "Complete all actions with isolation assured; separately, complete with the server unreachable.", "Recorded server-side; recorded locally and synced when offline; closing screen names the settings switched on."],
   ["UAT-17", "AC-12", "Duplicate concurrent sessions and retried messages within one run. (negative)", "One record, one report for the run; no progress regression; a deliberate FR-26 move back is not blocked."],
+  ["UAT-31", "AC-23", "Restart the app mid-setup, then try to start a new chat. (negative)", "New chat blocked; Continue onboarding button present; the existing chat resumes at the saved stage. The urgency override still opens."],
   ["UAT-18", "AC-24", "Complete the gates on device A, then resume on device B. (negative)", "Gates replayed on device B before the flow continues; the guard is not carried past setup on an unconfigured phone."],
   ["UAT-19", "AC-24", "Already-completed guard signs in on an unrecognised device.", "Gates run alone; completion unaffected."],
   ["UAT-20", "AC-13", "Leave to report a real incident, then return; separately, cross the exit before the microphone is granted.", "Banner cleared and the live warning shown; typed or call-it-in route offered pre-microphone; saved stage resumes."],
@@ -188,7 +189,6 @@ const UAT = [
   ["UAT-28", "AC-20", "Fail a spoken step three times; separately, ask to leave from a non-spoken step; separately, sign in with no connectivity. (negative)", "Typing offered; release reaches home with completion unmarked and stage saved, and does not recur at the next sign-in; no connectivity does not hold the guard."],
   ["UAT-29", "AC-21", "Walk every step of the flow checking the practice banner.", "Banner visible at every in-flow step and offers the way out."],
   ["UAT-30", "AC-22", "At go-live, launch onboarding with the exclusion filter absent. (negative)", "Refuses to start and reports why. Run at go-live, not during MVP build."],
-  ["UAT-31", "AC-23", "Read the setup copy as a first-time guard.", "A Pronect-supplied line states what location and background tracking are used for; no supervisor-visibility claim originates here."],
 ];
 
 /* ================= CONTENT ================= */
@@ -248,7 +248,7 @@ const flowRef = "flow";
 [
   "The guard signs in. If onboarding is not complete it opens automatically, before the home screen.",
   "SAM introduces itself, says it can be taught the words the guard uses, and sets the ground rules. A practice banner appears and stays for the whole exercise.",
-  "Three setup gates in order: location, NFC, background tracking. Each links out to one setting and the guard returns to confirm. Granting may close the app; the guard reopens it and resumes at the same gate. The microphone and camera are not gated — they prompt themselves when first used, and SAM warns the guard to expect them.",
+  "Three setup gates in order: location, NFC, background tracking. Each links out to one setting and the guard returns to confirm. Granting may close the app; the guard reopens it and continues the existing chat, and cannot start a new one until onboarding is done (FR-31). The microphone and camera are not gated — they prompt themselves when first used, and SAM warns the guard to expect them.",
   "The guard presses Talk, waits for the microphone to turn green, and asks the suggested question. That first press doubles as the microphone check. Nothing live is written.",
   "The guard reports the suggested incident in their own words. SAM asks at most two follow-ups, creates exactly one report, and shows it as a card labelled “Training”.",
   "The guard corrects the report by hand first: they long-press their own report message, which SAM identifies on screen, add the location, and save.",
@@ -262,7 +262,6 @@ kids.push(p([chip("P"), t("  Reference copy: the intended tone and the tip place
 kids.push(table([1400, 4624, 3624], ["Stage", "SAM says", "Guard does"], [
   ["Welcome", "“Hello. I am SAM, your new assistant. From today you talk, and I write the report for you. We will work together on every shift, so it helps if we get to know each other a little. I already know many of the words guards use. If I keep getting a word wrong, tell your trainer which word you use, and we can teach me.”", "Reads, taps Start."],
   ["What this is", "“Nothing here is real. Everything we make together now is marked as training, so it stays out of your real reports. If you have to stop, I remember where you were. If something real happens while we practise, use the button at the top and report it for real.”", "Reads the practice banner, taps Continue."],
-  ["What is tracked", "Copy supplied by Pronect. States what location and background tracking are used for. No claim about what a supervisor can or cannot see originates here.", "Reads, taps Continue."],
   ["Gate 1 — location", "“First, location, so your reports say where you are. This link opens the settings for SAM OnSite. Your phone will ask twice. On the second screen choose Allow all the time, or I stop knowing where you are the moment your screen goes dark. If this closes me, just open SAM OnSite again and you will be right back here.”", "Follows the link, sets location to Allow all the time, returns."],
   ["Back from settings", "“You are back at the same step, nothing lost. Tap Done if it is set. If you cannot set it at all, tell me and I will get you help.”", "Taps Done, or says it cannot be granted. Same line whether they returned directly or reopened the app."],
   ["Gate 2 — NFC", "“Next is NFC. That is how your phone reads the checkpoint tags on your round. Switch it on through here, come back, and tap Done.”", "Enables NFC, returns, taps Done. Skipped if the phone has no NFC chip."],
@@ -374,7 +373,7 @@ kids.push(table([2200, 2200, 2200, 3048], ["Requirement", "Acceptance", "Test", 
   ["FR-28", "AC-20", "UAT-28", ""],
   ["FR-29", "AC-21", "UAT-29", ""],
   ["FR-30", "AC-22", "UAT-30", "Run at go-live"],
-  ["FR-31", "AC-23", "UAT-31", "Copy supplied by Pronect"],
+  ["FR-31", "AC-23", "UAT-31", ""],
   ["FR-32", "AC-24", "UAT-18/19", ""],
 ]));
 
