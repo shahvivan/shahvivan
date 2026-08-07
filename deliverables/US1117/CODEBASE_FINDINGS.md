@@ -255,3 +255,95 @@ Each needs `.IgnoreQueryFilters()`. There is also no index on `Active` — add o
 ## Still not found
 
 Long-press-to-edit and NFC appear in **none of the six repos**, searched case-insensitively across every file type. The SAM-OnSite snapshot is `main` at version `1.3.8+2`. Since both features work on a real handset, the running build is not this snapshot — most likely a branch. An Azure DevOps code search for `onLongPress` will name it.
+
+---
+
+# ADDENDUM 2 — the live surfaces, finally enumerated
+
+Read of **Pronect-Frontend** (Angular). This closes the question that has been open since the product owner's July message: which live surfaces must the exclusion filter cover.
+
+Only two components in the whole app touch `PlatformEventService`. Everything else surfaces event data indirectly, which is where the leaks are.
+
+## The twelve places a training incident could appear
+
+Ordered by likelihood. "Inherits" means a backend `Active` filter on the existing query fixes it for free.
+
+| # | Surface | Inherits? |
+|---|---|---|
+| 1 | **Reporter typeahead** — a practice-only guard's name and email appear in the Reporter suggestions for every user on the page | **No** |
+| 2 | **Events table with the archived toggle on** | **Partially** |
+| 3 | **Audit log** — event Title and Description in log rows and change summaries | **No** |
+| 4 | **SAM chat location map** — pins carrying event title, type and description | **No** |
+| 5 | **Action plan created from an event** — description copied into a persisted field | **No** |
+| 6 | Detail modal on an archived row | No, but contained |
+| 7 | Photos and their SAS URLs | Inherits |
+| 8 | Linked action plans table | Inherits |
+| 9 | SAM chat PDF export | Downstream of 4 |
+| 10 | SAM chat stat tiles | Downstream of 4 |
+| 11 | Pagination total count | Inherits |
+| 12 | Power BI embedded pages | **Unknown** |
+
+## The five that need their own change
+
+### 1. The reporter typeahead is the leakiest surface
+
+`src/app/services/platform-event.service.ts:69` calls `GET /v1/PlatformEvent/GetPlatformEventUsers`. The params interface has **no field for `includeArchived`**:
+
+```ts
+export interface IPlatformEventUserLookupParams {
+  searchTerm: string;
+  pageSize?: number;
+  minStartedAt?: string;
+  maxStartedAt?: string;
+  locationId?: number;
+  sourceSystem?: string;
+}
+```
+
+The response merges emails, users **and full names**. So a guard who has only ever filed practice incidents still appears in the Reporter dropdown for anyone on the page, and the archived toggle makes no difference. Fixing the list query does not fix this.
+
+### 2. The archived toggle is not role-gated
+
+`platform-events-list.component.html:145` — the switch appears whenever `hasArchivedEvents` is true, which is data-driven, not permission-driven. Every role that can open the page gets it, including `ReadOnlyUser`. Archived rows are dimmed to 0.6 opacity and carry an archive icon, but remain fully clickable and open the complete detail modal.
+
+This is the second concrete argument for a separate `IsTraining` column: the toggle should keep working for genuinely archived events and must never reach training ones.
+
+### 3. Photos are exposed at the list, not the detail
+
+`platform-event.interface.ts:79` — the interface comment says it plainly: *"Returned with list data when the event has image attachments."* Each image carries a `readUrl` SAS link. So a training event merely appearing in the list already hands live, time-limited image URLs to the browser, before anyone opens anything.
+
+### 4. Action plans carry the guard's text permanently
+
+`action-plan-modal.component.ts:189`:
+
+```ts
+copyEventDescriptionToRootCause(): void {
+  const eventDescription = this.platformEventContext?.description?.trim();
+  if (eventDescription) { this.model.rootCause = eventDescription; }
+}
+```
+
+One button copies the incident description into the action plan's persisted `rootCause`. After that the text is ActionPlan data with no relationship to the event's flag, and no later filter reaches it. Block creation server-side for training events.
+
+Credit where due: `platform-events-list.component.html:450` already hides the create button when `details.active` is false. That is the only place in the entire UI that checks the archive flag.
+
+### 5. The SAM chat map is a separate backend
+
+`chat.service.ts` defines `ChatStructuredLocationPoint` with `event_title`, `event_type` and `event_description`, rendered as clickable map pins with a detail panel. It is fed by `environment.apiUrl` — the conversational backend — **not** by `PlatformEventService`. It will not inherit any fix made to the PlatformEvent controller, and the chat PDF export rasterises the whole thing into a downloadable file.
+
+## Good news
+
+- **No event is linkable by URL.** The detail view is a modal, not a route; no code writes an event id to the URL. That contains the missing `Active` filter on `GetByIdAsync` to whatever reaches the list.
+- **No CSV, Excel or print export** of event data anywhere.
+- **No dashboard tile, chart or widget** counting events. `dashboard.service.ts` has no event endpoint.
+- **The pagination count inherits** the filter automatically.
+
+## Still unknown
+
+**Power BI.** Embedded report pages are rendered from credentials in `PowerBIDetails`; the dataset is defined outside every repo. If any page queries `PlatformEvent`, it will not inherit anything done in code. Someone has to check this on the BI side.
+
+## Still not found, across seven repos
+
+NFC and long-press-to-edit. The frontend's fourteen `nfc` matches are Material Design Icon glyph names in a webfont; the seven `heatmap` matches are vendor chart libraries. Neither is a feature.
+
+**The location heatmap does not exist in any repo read so far** — not backend, not frontend. The nearest thing is the SAM chat map at surface 4.
