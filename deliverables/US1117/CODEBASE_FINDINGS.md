@@ -435,3 +435,90 @@ This has nothing to do with onboarding, and I have not touched it. It should go 
 - "Marked as training at creation" moves from *unproven* to *confirmed feasible*, and gets cheaper — the platform end is already built.
 - "Kept out of every live surface" keeps its cost, and gains a second required change: the alert path, which archive mode does not cover.
 - The training event should carry its own `type`, not just the flag. That was not in the spec and should be.
+
+---
+
+# ADDENDUM 4 — the live branch, and a correction
+
+The SAM-OnSite repo has three branches. `main` was last touched 29 Jan 2026. **`feat/nfc` was last touched 19 Jul 2026 and is six months ahead.** Everything earlier in this document was read from `main`, which is stale.
+
+Azure DevOps code search indexes only the default branch, which is why searching found nothing.
+
+| | main | feat/nfc |
+|---|---|---|
+| version | 1.3.8+2 | 1.3.9+10 |
+| NFC | absent | `flutter_nfc_kit: ^3.6.2` |
+| `active` on Event | absent | **present** |
+
+## Correction to Addendum 3
+
+Addendum 3 said the Flutter `Event` model has no `active` field, and that adding one was the required change. **That is wrong on the live branch.** The model carries `final bool active;` — non-nullable, always sent.
+
+So the training flag is already plumbed end to end: app model → Supabase → bridge mapper → platform entity → list filter. Nothing needs building for the flag itself.
+
+What remains to verify is behavioural, not structural: that a practice report is created with `active: false` rather than having it set afterwards, and that the Supabase `events` table has the column.
+
+This makes "marked as training at creation" cheaper than any previous estimate.
+
+## NFC is the checkpoint mechanism, not a nice-to-have
+
+Eight files on the live branch: `nfc_tag_reader.dart`, `nfc_checkpoint_controller.dart`, `nfc_scenario_launcher.dart`, `nfc_providers.dart`, `nfc_uid.dart`, `checkpoint_scan_feedback_listener.dart`, plus provider wiring and strings.
+
+Scanning a tag launches a scenario. That is how patrol checkpoints work. A guard whose NFC is off cannot complete a round — which raises NFC in onboarding from housekeeping to essential.
+
+`flutter_nfc_kit` exposes `nfcAvailability`, returning one of *not supported* / *disabled* / *available*. That distinguishes a phone with no chip from a chip that is switched off.
+
+If the app calls it, two open questions close at once: SAM can read NFC state, and can detect whether the handset has a chip. The package supports it; whether the code calls it needs the branch to confirm.
+
+## Handsets without NFC are explicitly supported
+
+```xml
+<uses-feature android:name="android.hardware.nfc" android:required="false" />
+```
+
+`required="false"` means the app installs on phones with no NFC chip. Onboarding must not dead-end those guards — a chipless handset has to skip the NFC gate, not fail it.
+
+## A new setup item nobody has listed
+
+The live manifest adds:
+
+```xml
+<uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+```
+
+Android's battery optimiser suspends background work for apps it considers idle. This is the single most common reason background location silently stops. The permission's presence means someone hit that problem.
+
+It needs its own onboarding step, and it behaves unlike the others: a system dialog, not a settings screen. Setup gates go from three to four.
+
+## Press-and-hold confirmed, with two details worth having
+
+`conversation_page.dart:1510-1524`, and `onLongPress` was the right identifier after all — just on an unindexed branch.
+
+```dart
+onLongPress:
+    _editingMessageId == null && _canEditMessage(message)
+        ? () => _startEditing(message)
+        : null,
+```
+
+Two things the spec did not know:
+
+**Not every message is editable.** `_canEditMessage` gates it. The practice step must use a message that passes that check, or the gesture does nothing and the guard concludes it is broken.
+
+**Originals are retained.** `message.originalContent` and `onRestoreOriginal` mean an edited message keeps what it was. Good for the training story — and worth confirming the training flag survives an edit.
+
+## A repo nobody has read
+
+The inventory lists thirteen repos. Eight are read. **`Pronect-Management-Frontend`, last committed 3 Aug 2026, is a second front-end application and has never been opened.**
+
+Addendum 2 enumerated twelve live surfaces from `Pronect-Frontend` alone. If Management-Frontend also displays platform events, that list is incomplete, and the exclusion filter would miss whatever it shows. This should be checked before the filter is called done.
+
+Also unread: `Pronect-App-Models-Client`, `Pronect-Management-Client`, `Pronect-Management-Models-Client`, `SAM-Preproc`.
+
+## The heatmap does not exist in code
+
+Searched across the organisation, no match outside third-party chart libraries. It is either Power BI or it was aspirational in the deck. Either way, no code change reaches it.
+
+## What is now needed
+
+The `feat/nfc` branch itself. Every SAM OnSite finding in this document came from a branch six months stale, and the two differences already found — NFC and `active` — were both material.
