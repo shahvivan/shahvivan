@@ -522,3 +522,104 @@ Searched across the organisation, no match outside third-party chart libraries. 
 ## What is now needed
 
 The `feat/nfc` branch itself. Every SAM OnSite finding in this document came from a branch six months stale, and the two differences already found — NFC and `active` — were both material.
+
+---
+
+# ADDENDUM 5 — the live branch, read
+
+`feat/nfc`, version 1.3.9+10, 130 Dart files. This supersedes every SAM OnSite finding taken from `main`.
+
+## The finding that changes the design
+
+**The app does not create reports.**
+
+`EventRepository.upsert()` exists and is never called. Every consumer of that repository only reads (`watchByUser`, `watchByConversation`, `getById`) or changes state after the fact (`archive`, `unarchive`, `delete`).
+
+Event rows are created inside Supabase — a database function or trigger. That code is in none of the nine repositories read.
+
+This breaks the plan as written. "Marked as training at creation" cannot be done in the app, because the app is not where creation happens.
+
+### Why after-the-fact archiving is not a substitute
+
+`archive()` issues an update setting `active: false` on an existing row. The Supabase dispatcher fires on insert. So the sequence is:
+
+1. Row inserted, `active: true`
+2. Dispatcher picks it up
+3. Bridge maps it, `Active = true`
+4. Pronect ingests it, sees a new event, **emails supervisors**
+5. The app archives it — too late
+
+The window is however long steps 2–4 take. An alert already sent cannot be recalled.
+
+**The flag must be set on insert, inside Supabase.** That is the change, and it belongs to whoever owns the Supabase project. It is small; it is just not in the app.
+
+## The architecture already has the right lever
+
+The voice agent has exactly one tool: `context_set()`. It does not create reports — it classifies what the guard said into a **scenario code**:
+
+```
+incident_theft_event, incident_vandalism_event, incident_fire_event,
+incident_accident_event, incident_other_event,
+guard_preventive_control_check, ...
+```
+
+The scenario becomes the event's type. Pronect resolves notification recipients **by type** (`NotificationScenarioRepository.cs:329` — no matching scenario, empty recipient list).
+
+So a dedicated training scenario is silent by construction, and requires no new concept: scenarios are already how this system classifies everything. Onboarding should add one, not invent a training mode.
+
+Two changes, both small, at the two ends:
+- a training scenario code, with no Pronect notification scenario configured against it
+- Supabase inserting the practice row with `active: false`
+
+## Everything onboarding needs to check is readable
+
+This is better than assumed, and removes the guesswork from setup.
+
+**NFC** — `nfc_tag_reader.dart:31` reads `FlutterNfcKit.nfcAvailability` into a typed enum:
+
+```dart
+enum NfcReaderAvailability { available, disabled, notSupported }
+```
+
+That distinguishes a handset with no chip from a chip that is switched off. Both open questions close: SAM can read NFC state, and can detect the chip.
+
+**Location and battery** — `LocationTrackingState` exposes, as typed fields:
+
+- `foregroundPermissionGranted`
+- `backgroundPermissionGranted`
+- `batteryOptimizationIgnored`
+- `backgroundSetupRequired` — opted in but device capability missing
+- `backgroundTrackingEnabled` — the user's desired setting
+
+So SAM can verify every setup gate rather than asking the guard to confirm. Onboarding becomes check-then-fix, not instruct-then-hope.
+
+**Battery optimisation is a real gate, already modelled.** `backgroundBatteryOptimizationRequired` is true when the guard wants background tracking but the app is not exempt. The team has already hit this. It is a fourth gate and it behaves differently — a system dialog, not a settings screen.
+
+## Press-and-hold: confirmed, with its rule
+
+`conversation_page.dart:1179`:
+
+```dart
+bool _canEditMessage(Message message) {
+  if (message.id == null || message.id == -1) return false;
+  if ((message.messageType ?? '').toLowerCase() == 'photo') return false;
+  if (message.role != 'user') return false;
+  return true;
+}
+```
+
+Editable: the guard's own text messages, once saved. Not editable: photos, SAM's replies, anything not yet persisted.
+
+The practice step is sound — it edits the guard's own message. Two constraints for the script: the message must have saved first, and the gesture must not be taught on a photo.
+
+Originals are retained (`message.originalContent`, `onRestoreOriginal`), so an edit is reversible.
+
+## Archive already has a user interface
+
+`transcript_detail_page.dart:190` already calls `archive()` and `unarchive()` on events, and the same for conversations. A guard can already archive their own report from the app.
+
+Worth knowing before designing anything: the concept is not new to guards, and the practice report will be archivable by the guard like any other.
+
+## What is still not in any repo
+
+Event creation in Supabase. The location heatmap. The Power BI dataset. `Pronect-Management-Frontend`, still unread and possibly a thirteenth live surface.
