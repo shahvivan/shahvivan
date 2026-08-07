@@ -347,3 +347,91 @@ Credit where due: `platform-events-list.component.html:450` already hides the cr
 NFC and long-press-to-edit. The frontend's fourteen `nfc` matches are Material Design Icon glyph names in a webfont; the seven `heatmap` matches are vendor chart libraries. Neither is a feature.
 
 **The location heatmap does not exist in any repo read so far** — not backend, not frontend. The nearest thing is the SAM chat map at surface 4.
+
+---
+
+# ADDENDUM 3 — Pronect-Integrations, the missing bridge
+
+This is the repo that connects SAM OnSite to the Pronect platform. Everything earlier in this document treated that link as an assumption. It is now read.
+
+A small service: 19 C# files, one controller, one webhook handler.
+
+## The path a guard's report actually takes
+
+1. The Flutter app writes a row to the Supabase `events` table.
+2. A Supabase dispatcher reads an outbox and POSTs to `webhooks/onsite/platform-event`, signed with an HMAC header.
+3. `OnSiteMapper.Map()` turns the payload into a `PlatformEvent`.
+4. Any photos are copied from Supabase storage into Azure Blob storage.
+5. `PronectIngestionClient` POSTs to `/api/v1/PlatformEvent/IngestPlatformEvent` on the Pronect API with an AAD token.
+
+Failures return 500 on purpose, so the Supabase outbox retries rather than marking the row done.
+
+## The good news: the training flag is already plumbed
+
+`OnSiteMapper.cs:65`:
+
+```csharp
+Active = TryGetBoolean(evt, "active")
+    ?? TryGetBoolean(payload, "active")
+    ?? true,
+```
+
+The mapper already reads `active` off the event, falls back to the envelope, and defaults to `true`. `PlatformEvent.Active` exists on the DTO, on the ingest DTO, on the entity, and the list query filters on it.
+
+So a practice report can be marked at creation with **no change to this service and no change to the Pronect API**. The flag travels the whole way on its own.
+
+## The bad news: one field is missing at the source
+
+The Flutter `Event` model (`lib/data/models/event.dart`) has no `active` field. `toJson()` never emits one. So today every OnSite event arrives with `active` absent and ingests as `Active = true`.
+
+That is the change: one field on the Dart model, one column on the Supabase `events` table, and the outbox payload carries it. Small, and at the right end — the flag is set where the report is born, which is what "marked as training at creation" requires.
+
+## The defect this makes concrete
+
+Setting `active = false` **does not stop the supervisor email.**
+
+`PlatformEventService.IngestAsync` sends the critical-event mail on `if (isNewPlatformEvent)` alone. `Active` is never consulted. A practice report marked training from birth still wakes a supervisor.
+
+Archive mode hides it from the list. It does not hold the alert.
+
+## But there is a second lever, and it costs nothing
+
+Recipients come from `GetEventNotificationRecipientsAsync(clientId, type, locationIds)`, and `NotificationScenarioRepository.cs:329`:
+
+```csharp
+if (matchingScenarios.Count == 0)
+{
+    return [];
+}
+```
+
+No notification scenario matching the event's **type code** means no recipients, which means no email.
+
+So a training event carrying its own `type` — one with no scenario configured — sends nothing, with no code change at all. Configuration only.
+
+That gives two independent guards:
+
+- **`active = false`** keeps it out of the lists, and is the durable flag every other consumer reads.
+- **a distinct `type`** keeps the alert from firing.
+
+Use both. Neither alone is sufficient: the type alone leaves the event visible in the list, and `active` alone leaves the alert firing.
+
+## Three smaller things worth knowing
+
+**Photos land in production storage before ingestion.** `StoreImagesAsync` runs before `IngestAsync` and is not conditional. A practice photo is copied into the `platform-event-images` container regardless of any flag. Cheapest fix for the MVP: no photo step in training.
+
+**Re-ingest overwrites the flag.** Identity is `(SourceClientId, SourceSystem, SourceEventId)`, and on a repeat `existing.Active = entity.Active`. If a later webhook for the same event omits `active`, the mapper's `?? true` un-archives it. The flag must be written on the Supabase row itself, not passed once in an envelope.
+
+**The bypass is environment-gated.** `x-dev-bypass` only works when the environment is `Localhost`, and the HMAC secret differs per environment. Nothing to fix.
+
+## One thing to raise separately
+
+`appsettings.Production.json` and `appsettings.Uat.json` carry live secrets in plaintext in the repo — AAD client secrets, storage account keys, and the webhook signing secrets for all environments.
+
+This has nothing to do with onboarding, and I have not touched it. It should go to whoever owns the repo, because anyone with read access to it currently holds production storage keys.
+
+## What this addendum changes in the plan
+
+- "Marked as training at creation" moves from *unproven* to *confirmed feasible*, and gets cheaper — the platform end is already built.
+- "Kept out of every live surface" keeps its cost, and gains a second required change: the alert path, which archive mode does not cover.
+- The training event should carry its own `type`, not just the flag. That was not in the spec and should be.
